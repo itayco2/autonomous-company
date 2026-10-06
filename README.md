@@ -7,6 +7,11 @@ writes the job description for every role it needs, hires AI workers into them, 
 and reviews what comes back, cycle after cycle. You watch it happen in a live pixel office, answer
 its requests at a front desk, and stop it whenever you like.
 
+![The live office: a pixel tower with one floor per role, each desk an AI agent on one task](docs/office.gif)
+
+The office during one work cycle of Orrery, the first company the Head founded, 25 minutes in eight
+seconds. Each robot at a desk is one agent on one task. The ones on the sofas have finished theirs.
+
 ## How it works
 
 - **The Head** (Claude Opus) runs the company. It cannot do any work itself: the only two commands
