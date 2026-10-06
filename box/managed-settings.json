@@ -1,0 +1,8 @@
+{
+  "availableModels": ["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-4-5"],
+  "enforceAvailableModels": true,
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL_FORCE": "1",
+    "CLAUDE_CODE_DISABLE_FAST_MODE": "1"
+  }
+}

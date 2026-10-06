@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Tower</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%2323314F'/%3E%3Crect x='4' y='2' width='8' height='14' fill='%233B3552'/%3E%3Crect x='5' y='4' width='2' height='2' fill='%23f5a623'/%3E%3Crect x='9' y='4' width='2' height='2' fill='%232dd4bf'/%3E%3Crect x='5' y='8' width='2' height='2' fill='%232dd4bf'/%3E%3Crect x='9' y='8' width='2' height='2' fill='%23f5a623'/%3E%3Crect x='7' y='12' width='2' height='4' fill='%236E4A30'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{--ink:#15141C;--panel:#1E1C28;--line:#2A2738;--edge:#3A3650;--cream:#F3EFE6;--muted:#B9B3C9;--faint:#8E879E;--accent:#2dd4bf;--amber:#f5a623;--pink:#ef476f;--violet:#8b7cf6;--outline:#2A2430}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--cream);font-family:'IBM Plex Mono',ui-monospace,monospace}
+.pix{font-family:'Pixelify Sans',ui-monospace,monospace}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:12px 20px;background:var(--panel);border-bottom:4px solid var(--line)}
+h1{margin:0;font-size:30px;font-weight:700;letter-spacing:1px}
+.chip{display:flex;align-items:center;gap:8px;padding:5px 11px;border:2px solid var(--edge);font-size:15px}
+.dot{width:10px;height:10px;background:var(--accent)}
+.meters{display:flex;gap:18px;flex-wrap:wrap}
+.meter{display:flex;flex-direction:column;gap:3px;min-width:170px;font-size:12px;color:var(--muted)}
+.meter>div:first-child{display:flex;justify-content:space-between;gap:10px}
+.bar{height:9px;background:var(--line);border:2px solid var(--edge)}.bar>div{height:100%;background:var(--accent)}
+main{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px;padding:18px 20px;align-items:start}
+@media (max-width:1100px){main{grid-template-columns:minmax(0,1fr)}}
+.city{background:#23314F;border:4px solid var(--line);padding:16px 12px 0;overflow-x:auto;display:flex;flex-direction:column;align-items:center}
+.night .city{background:#121A2E}
+.roof{display:flex;flex-direction:column;align-items:center}
+.billboard{width:380px;padding:9px 12px;background:#0E1520;box-shadow:0 0 0 4px var(--outline);text-align:center}
+.legs{display:flex;gap:300px}.legs div{width:6px;height:12px;background:var(--outline)}
+.tower{position:relative;width:980px;background:#3B3552;box-shadow:0 0 0 4px var(--outline);padding:0 10px}
+.parapet{height:14px;background:#2A2540;margin:0 -10px}
+.floor{display:grid;grid-template-columns:112px minmax(0,1fr) 72px;height:170px;border-bottom:10px solid #2A2540}
+.label{background:#2E2944;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:0 10px;border-right:4px solid #2A2540}
+.label .n{font-size:30px;line-height:30px}.label .d{font-size:14px}.label .m{font-size:10px;color:var(--muted)}
+.room{position:relative;background:#EADBC2;display:flex;align-items:flex-end;gap:4px;padding:0 8px 14px;overflow:hidden}
+.room.dim{background:#D8C9AC}.night .room{background:#5A5266}
+.room::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;background:repeating-linear-gradient(90deg,#C49A62 0 22px,#B48954 22px 24px)}
+.slot{position:relative;width:112px;height:140px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;z-index:1}
+.desk{position:relative;width:106px;height:32px;background:#6E4A30;box-shadow:0 0 0 3px var(--outline),inset 0 -6px 0 #573922}
+.desk .mon{position:absolute;left:37px;top:-22px;width:32px;height:20px;background:#2B3345;box-shadow:0 0 0 3px var(--outline)}
+.desk .plate{position:absolute;left:5px;top:12px;max-width:96px;font-size:9px;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.free .plate{color:#E8DCC3}
+.nook{width:104px;height:140px;margin-left:auto;display:flex;align-items:flex-end;justify-content:flex-end;gap:2px;z-index:1}
+.machine{width:28px;height:46px;background:#3A3342;box-shadow:0 0 0 3px var(--outline);display:flex;justify-content:center;flex:none}
+.machine div{margin-top:7px;width:16px;height:10px;background:var(--amber)}
+.shaft{background:#1E1B2C;border-left:4px solid #2A2540;display:flex;align-items:flex-end;justify-content:center;padding-bottom:14px}
+.lift{width:46px;height:92px;background:#2B3345;box-shadow:0 0 0 3px var(--outline);display:flex;gap:2px;padding:4px}
+.lift div{flex-grow:1;background:var(--faint)}
+.lobby{display:grid;grid-template-columns:112px minmax(0,1fr) 72px;height:200px}
+.lobby .room{background:#D9C9A8;gap:26px;padding:0 16px 14px}
+.lobby .room::after{background:repeating-linear-gradient(90deg,#8F8A8A 0 30px,#7E7979 30px 32px)}
+.street{width:1020px;height:22px;background:#4A4A52;border-top:4px solid var(--outline)}
+.car{position:absolute;right:23px;width:46px;height:92px;background:var(--amber);box-shadow:0 0 0 3px var(--outline);z-index:4;display:none;transition:top 1.6s steps(12)}
+.person{position:relative;width:110px;display:flex;flex-direction:column;align-items:center;cursor:pointer;background:none;border:0;padding:0;color:inherit;transition:opacity .4s}
+.person:focus-visible{outline:3px dashed var(--accent);outline-offset:4px}
+.person.arriving{opacity:0}
+.bubble{width:108px;padding:3px 5px;margin-bottom:8px;background:#FBF8F1;color:var(--ink);border:2px solid var(--outline);font-size:10px;line-height:12px;text-align:left}
+.bubble .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bubble .a{display:none;margin-top:2px;font-family:'IBM Plex Mono',monospace;color:#4A4458}
+.person.on .bubble{border-color:var(--accent)}
+/* The picked person's card floats over the page, kept inside the window, so no wall can cut it. */
+#pop{position:fixed;z-index:50;width:250px;padding:8px 10px;background:#FBF8F1;color:var(--ink);border:3px solid var(--accent);box-shadow:0 0 0 2px var(--outline);font-size:12px;line-height:16px;display:none;pointer-events:none}
+#pop .w{font-family:'Pixelify Sans',monospace;font-size:15px}
+#pop .t{margin-top:4px;font-size:13px;line-height:17px}
+#pop .a{margin-top:2px;color:#4A4458}
+.thinking .bubble{border-style:dashed}
+.idleperson{display:flex;flex-direction:column;align-items:center;cursor:pointer;background:none;border:0;padding:0;color:inherit;width:46px}
+.tag{font-size:10px;background:rgba(21,20,28,.82);padding:0 3px;color:var(--cream);white-space:nowrap}
+.cup{width:8px;height:9px;background:var(--cream);box-shadow:0 0 0 2px var(--outline);position:absolute;right:-4px;bottom:16px}
+.zz{position:absolute;top:-14px;right:-6px;font-size:11px;color:#E8DCC3;display:none}
+.night .zz{display:block;animation:float 2.4s steps(4) infinite}
+.sprite{position:relative;width:36px;height:46px}.sprite .p{position:absolute}
+.atdesk .sprite{margin-bottom:-12px}
+@keyframes type{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes think{0%,100%{transform:rotate(0)}50%{transform:rotate(-3deg)}}
+@keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(1px)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes float{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-8px);opacity:0}}
+/* The whip: a toy. It only changes how the robots move on this page; the real agents never feel it. */
+#whipbtn{cursor:pointer;background:none;color:var(--cream);font-size:15px}
+#whipbtn.armed{border-color:var(--amber);color:var(--amber)}
+.whipmode .person,.whipmode .lounger{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M4 4 Q 15 1 18 10 T 27 21' fill='none' stroke='%232A2430' stroke-width='3.5'/%3E%3Cpath d='M4 4 Q 15 1 18 10 T 27 21' fill='none' stroke='%23C49A62' stroke-width='1.5'/%3E%3Crect x='23' y='19' width='6' height='11' fill='%236E4A30' stroke='%232A2430' stroke-width='1.5' transform='rotate(-38 26 24)'/%3E%3C/svg%3E") 4 4,crosshair}
+.sweat{display:none;position:absolute;width:5px;height:7px;background:#9FD3F0;box-shadow:0 0 0 1px var(--outline);border-radius:50% 50% 50% 50%/60% 60% 40% 40%;z-index:5;animation:drip .5s steps(2) infinite}
+.atdesk .sweat{bottom:40px;left:calc(50% + 15px)}.lounger .sweat{top:-3px;left:31px}
+.whipped .sweat{display:block}
+@keyframes drip{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
+.whipped.atdesk .sprite{animation:type .12s steps(2) infinite!important}
+.lounger.whipped .sprite{animation:hop2 .25s steps(2) infinite!important}
+@keyframes hop2{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.jolt{animation:jolt .35s steps(4)}
+@keyframes jolt{0%,100%{transform:translate(0,0)}25%{transform:translate(-3px,-3px) rotate(-6deg)}50%{transform:translate(3px,-1px) rotate(5deg)}75%{transform:translate(-1px,0)}}
+.say.shout{opacity:1!important;animation:none!important}
+.shake{animation:shake .22s steps(4)}
+@keyframes shake{0%,100%{transform:translate(0,0)}25%{transform:translate(-4px,2px)}50%{transform:translate(4px,-2px)}75%{transform:translate(-2px,1px)}}
+.crack{position:fixed;font-size:18px;color:var(--amber);text-shadow:2px 2px 0 var(--outline);pointer-events:none;z-index:60;white-space:nowrap;animation:crack .8s ease-out forwards}
+@keyframes crack{0%{opacity:0;transform:translate(-50%,-100%) scale(.6) rotate(-8deg)}20%{opacity:1;transform:translate(-50%,-130%) scale(1.15) rotate(-8deg)}100%{opacity:0;transform:translate(-50%,-190%) scale(1) rotate(-8deg)}}
+.working .sprite{animation:type .45s steps(2) infinite}.thinking .sprite{animation:think 1.6s ease-in-out infinite}
+.resting .sprite{animation:breathe 2.4s steps(2) infinite}.eye{animation:blink 4s infinite}.pulse{animation:pulse 1.2s steps(2) infinite}
+#doorlight{width:14px;height:14px;background:#2B3345;box-shadow:0 0 0 3px var(--outline);transition:background .15s}
+aside{background:var(--panel);border:4px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+aside h2{margin:0;font-size:20px;font-weight:600}
+.card{padding:12px;background:var(--ink);border:3px solid var(--accent)}
+.card .who{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:20px}
+.small{font-size:11px;color:var(--muted)}
+.pill{font-size:12px;padding:0 6px;color:var(--ink)}
+.fl{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;padding:8px;background:var(--ink);border:2px solid var(--line);cursor:pointer;text-align:left;color:inherit;font:inherit;width:100%}
+.fl .n{font-size:22px}
+.counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.counts div{background:var(--ink);border:2px solid var(--line);padding:6px;text-align:center;font-size:11px;color:var(--muted)}
+.counts b{display:block;font-size:20px;color:var(--cream);font-family:'Pixelify Sans',monospace}
+footer{padding:10px 20px 16px;border-top:4px solid var(--line)}
+footer h2{margin:0 0 6px;font-size:16px;color:var(--muted);font-weight:600}
+#story{display:flex;flex-wrap:wrap;gap:6px 22px;font-size:13px}#story .t{color:var(--faint)}
+#offline{display:none;background:var(--pink);color:var(--ink);padding:6px 20px;font-size:13px}
+/* The lounge: a room of sofas and a ping-pong table. Everything in it moves by CSS alone. */
+.floor.lounge{height:auto;min-height:170px}
+.loungeroom{background:repeating-linear-gradient(90deg,#E8D5C4 0 20px,#E1CCB9 20px 40px);padding:64px 18px 20px;flex-wrap:wrap;align-content:flex-end;align-items:flex-end;gap:22px 30px}
+.night .loungeroom{background:repeating-linear-gradient(90deg,#4E465C 0 20px,#494157 20px 40px)}
+.lwall{position:absolute;top:10px;left:18px;right:18px;height:40px;display:flex;justify-content:space-between;align-items:flex-start;z-index:0;pointer-events:none}
+.lwin{width:64px;height:36px;background:#9FD3F0;box-shadow:0 0 0 3px var(--outline);position:relative}
+.night .lwin{background:#1E2A4A}
+.lwin::before{content:"";position:absolute;left:31px;top:0;width:3px;height:36px;background:var(--outline)}
+.lwin::after{content:"";position:absolute;left:0;top:16px;width:64px;height:3px;background:var(--outline)}
+.ltv{width:58px;height:34px;background:#2B3345;box-shadow:0 0 0 3px var(--outline);display:flex;align-items:center;justify-content:center}
+.ltv div{width:46px;height:22px;background:linear-gradient(90deg,#2dd4bf,#8b7cf6,#f5a623,#ef476f);background-size:300% 100%;animation:tv 6s steps(6) infinite}
+@keyframes tv{0%{background-position:0 0}100%{background-position:100% 0}}
+.night .ltv div{animation:none;background:#1B1A24}
+.pod,.pingpong{position:relative;display:flex;align-items:flex-end;z-index:1}
+.pod{gap:8px}
+.rug{position:absolute;left:-10px;right:-10px;bottom:-6px;height:8px;background:#B9A1C9;box-shadow:0 0 0 2px var(--outline);z-index:0}
+.sofa{position:relative;height:96px}
+.sofa .back{position:absolute;left:0;right:0;bottom:18px;height:30px;box-shadow:0 0 0 3px var(--outline);z-index:0}
+.sofa .front{position:absolute;left:-5px;right:-5px;bottom:12px;height:16px;box-shadow:0 0 0 3px var(--outline);z-index:2}
+.sofa .front::before,.sofa .front::after{content:"";position:absolute;bottom:0;width:8px;height:24px;background:inherit;box-shadow:0 0 0 3px var(--outline)}
+.sofa .front::before{left:-4px}.sofa .front::after{right:-4px}
+.sitters{position:absolute;left:6px;bottom:16px;display:flex;gap:4px;z-index:1}
+.names{position:absolute;left:0;right:0;bottom:-6px;display:flex;justify-content:space-around;z-index:3}
+.names .tag{font-size:9px}
+.ctable{position:relative;width:38px;height:28px;margin-bottom:12px}
+.ctable .top{position:absolute;left:0;right:0;top:12px;height:6px;background:#6E4A30;box-shadow:0 0 0 2px var(--outline)}
+.ctable .leg{position:absolute;top:18px;width:3px;height:10px;background:var(--outline)}
+.ctable .mug{position:absolute;top:5px;width:6px;height:7px;background:#FBF8F1;box-shadow:0 0 0 2px var(--outline)}
+.lounger{position:relative;width:40px;height:46px;background:none;border:0;padding:0;cursor:pointer;color:inherit}
+.lounger:focus-visible{outline:3px dashed var(--accent);outline-offset:3px}
+.lounger .sprite{margin:0 2px}
+.say{position:absolute;left:50%;top:-20px;transform:translateX(-50%);padding:0 4px;background:#FBF8F1;color:var(--ink);box-shadow:0 0 0 2px var(--outline);font-size:10px;line-height:13px;white-space:nowrap;opacity:0;animation:chat 9s steps(1) infinite;z-index:4}
+@keyframes chat{0%{opacity:0}4%{opacity:1}26%{opacity:0}100%{opacity:0}}
+@keyframes talk{0%,3%,27%,100%{transform:translateY(0)}6%,12%,18%,24%{transform:translateY(-2px)}9%,15%,21%{transform:translateY(0)}}
+.lounger.chatty .sprite{animation:talk 9s steps(1) infinite}
+.night .say{display:none}.night .lounger .sprite{animation:breathe 2.4s steps(2) infinite}
+.lounger .zz{top:-12px;right:-2px}
+.pingpong{width:230px;height:96px}
+.pingpong .ptable{position:absolute;left:52px;right:52px;bottom:24px;height:8px;background:#2E7D5B;box-shadow:0 0 0 3px var(--outline)}
+.pingpong .ptable::before{content:"";position:absolute;left:calc(50% - 1px);bottom:8px;width:3px;height:10px;background:#FBF8F1}
+.pingpong .pleg{position:absolute;bottom:12px;width:3px;height:12px;background:var(--outline)}
+.ball{position:absolute;left:58px;bottom:40px;width:5px;height:5px;animation:rally 1.3s linear infinite alternate}
+.ball div{width:5px;height:5px;background:#FBF8F1;box-shadow:0 0 0 1px var(--outline);animation:hop .65s ease-in-out infinite alternate}
+@keyframes rally{from{left:58px}to{left:166px}}
+@keyframes hop{from{transform:translateY(0)}to{transform:translateY(-16px)}}
+.night .ball{display:none}
+.player{position:absolute;bottom:14px}
+.player .sprite{animation:breathe .65s steps(2) infinite}
+.paddle{position:absolute;top:22px;width:7px;height:9px;background:var(--pink);box-shadow:0 0 0 2px var(--outline)}
+.plamp{width:6px;height:70px;display:flex;flex-direction:column;align-items:center;z-index:1;align-self:flex-end;margin-bottom:12px}
+.plamp div:first-child{width:20px;height:12px;background:var(--amber);box-shadow:0 0 0 2px var(--outline)}
+.plamp div:last-child{width:3px;flex-grow:1;background:var(--outline)}
+.empty{font-size:12px;color:var(--outline);align-self:center;z-index:1}
+.decor{position:absolute;left:12px;right:12px;top:6px;height:40px;display:flex;justify-content:space-around;align-items:flex-end;z-index:0;pointer-events:none}
+.thing{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.thing .x{box-shadow:0 0 0 2px var(--outline)}
+.thing .txt{font-size:7px;line-height:8px;color:var(--cream);text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.logo{display:inline-grid;gap:0;vertical-align:middle}
+.frontdesk{display:flex;flex-direction:column;align-items:center;gap:4px;z-index:1;background:none;border:0;padding:0;color:inherit;cursor:pointer;font:inherit}
+.frontdesk:focus-visible{outline:3px dashed var(--accent);outline-offset:4px}
+.counter{position:relative;width:128px;height:44px;background:#8A5A3A;box-shadow:0 0 0 4px var(--outline),inset 0 -8px 0 #6E4A30}
+.bell{position:absolute;left:14px;top:-12px;width:14px;height:10px;background:var(--amber);box-shadow:0 0 0 2px var(--outline)}
+.papers{position:absolute;right:16px;bottom:44px;width:26px;background:#FBF8F1;box-shadow:0 0 0 2px var(--outline)}
+.desklight{width:12px;height:12px;background:#2B3345;box-shadow:0 0 0 3px var(--outline)}
+.desklight.on{background:var(--amber);animation:pulse 1.2s steps(2) infinite}
+#desk{display:flex;flex-direction:column;gap:10px}
+#desk.flash{outline:3px solid var(--amber);outline-offset:4px}
+.ask{padding:12px;background:var(--ink);border:3px solid var(--amber);display:flex;flex-direction:column;gap:8px}
+.ask .title{font-size:16px;line-height:20px}
+.ask pre{margin:0;max-height:260px;overflow:auto;white-space:pre-wrap;font-size:11px;line-height:15px;background:#0F0E15;padding:8px;border:2px solid var(--line)}
+.ask summary{cursor:pointer;font-size:12px;color:var(--accent)}
+.ask input{width:100%;background:#0F0E15;color:var(--cream);border:2px solid var(--edge);padding:8px;font:inherit;font-size:12px}
+.ask .row{display:flex;gap:8px}
+.ask button.b{flex:1;min-height:40px;border:0;font:inherit;font-family:'Pixelify Sans',monospace;font-size:16px;cursor:pointer;color:var(--ink)}
+.ask button.b:disabled{opacity:.5;cursor:default}
+.fold{margin-top:6px}
+.fold summary{cursor:pointer;padding:4px 0}
+.keyline{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;font-size:12px;padding:3px 8px;border-bottom:1px solid var(--line)}
+.keyline .kname{flex:1;min-width:0;overflow-wrap:anywhere}
+.keyline button{background:none;border:0;color:var(--pink);font:inherit;font-size:11px;padding:0;cursor:pointer;text-decoration:underline}
+.need{display:grid;grid-template-columns:minmax(0,1fr);gap:3px}
+.msg:empty{display:none}
+.need label{font-size:11px;color:var(--muted)}
+.panel{display:flex;flex-direction:column;gap:6px}
+.panel h3{margin:0;font-size:15px;font-weight:600}
+.place{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;font-size:12px;padding:5px 8px;background:var(--ink);border:2px solid var(--line)}
+.place .k{font-size:10px;color:var(--muted)}
+.money{font-family:'Pixelify Sans',monospace;font-size:26px;color:var(--accent)}
+</style>
+</head>
+<body>
+<div id="offline">The office server is not answering. It retries every second.</div>
+<div id="pop" role="status"></div>
+<header>
+  <h1 class="pix" id="company">...</h1>
+  <div class="chip pix"><span class="dot pulse" id="hbdot"></span><span id="hb">...</span></div>
+  <div class="chip pix" id="cycle">Cycle ...</div>
+  <div class="chip" id="clock" style="font-size:13px"></div>
+  <button type="button" class="chip pix" id="whipbtn" aria-pressed="false" title="A toy: crack the whip on anyone in the tower. It only moves the drawings; the real agents never feel it. Esc puts it away.">Whip</button>
+  <div style="flex-grow:1"></div>
+  <div class="meters">
+    <div class="meter"><div><span>Company share, this week</span><span id="sharetxt"></span></div><div class="bar"><div id="sharebar" style="width:0"></div></div></div>
+    <div class="meter"><div><span>Account, 5-hour</span><span id="fivetxt"></span></div><div class="bar"><div id="fivebar" style="width:0;background:var(--amber)"></div></div></div>
+    <div class="meter"><div><span>Account, week</span><span id="weektxt"></span></div><div class="bar"><div id="weekbar" style="width:0;background:var(--violet)"></div></div></div>
+  </div>
+</header>
+<main id="world">
+  <section class="city" id="city" aria-label="The tower">
+    <div class="roof">
+      <div style="width:4px;height:16px;background:var(--outline)"></div>
+      <div class="billboard"><div class="small">on the roof: their own page</div><div style="display:flex;align-items:center;justify-content:center;gap:8px"><span id="rooflogo"></span><span class="pix" id="tvtitle" style="font-size:18px;color:var(--accent)">...</span></div><div class="small" id="tvmeta"></div></div>
+      <div class="legs"><div></div><div></div></div>
+    </div>
+    <div class="tower" id="tower">
+      <div class="parapet"></div>
+      <div id="floors"></div>
+      <div class="lobby">
+        <div class="label"><div class="n pix" style="color:#E8DCC3">G</div><div class="d pix">Lobby</div><div class="m">new hires arrive here</div></div>
+        <div class="room" id="lobbyroom">
+          <div class="decor" id="lobbydecor" style="left:310px"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;z-index:1">
+            <div id="doorlight" title="The door: blinks for every request out of the building, pink when one is refused"></div>
+            <div style="width:52px;height:112px;background:#6E4A30;box-shadow:0 0 0 4px var(--outline);position:relative"><div style="position:absolute;left:38px;top:54px;width:7px;height:7px;background:#E8DCC3"></div></div>
+            <div class="pix" id="doorlabel" style="font-size:10px;color:var(--outline)">THE DOOR</div>
+          </div>
+          <div style="width:200px;padding:8px 10px;background:#2A2540;box-shadow:0 0 0 4px var(--outline);z-index:1;margin-bottom:40px">
+            <div class="pix" style="font-size:12px;color:#E8DCC3;margin-bottom:4px">DIRECTORY</div>
+            <div id="directory"></div>
+          </div>
+          <button type="button" class="frontdesk" id="frontdesk" aria-label="The front desk: requests waiting for your answer">
+            <div style="display:flex;align-items:center;gap:6px"><div class="desklight" id="desklight"></div><div class="pix" style="font-size:11px;color:var(--outline)">FRONT DESK</div></div>
+            <div class="counter"><div class="bell"></div><div class="papers" id="papers" style="height:0"></div></div>
+            <div class="pix" id="deskcount" style="font-size:11px;color:var(--outline)">nothing waiting</div>
+          </button>
+          <div style="z-index:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="display:flex;align-items:center;gap:8px"><span id="lobbylogo"></span><div class="pix" style="font-size:22px;letter-spacing:3px;color:var(--outline)" id="lobbysign">...</div></div>
+            <div class="pix" id="motto" style="font-size:10px;color:var(--outline);max-width:220px;text-align:center"></div>
+            <div style="width:220px;height:46px;background:#50627F;box-shadow:0 0 0 4px var(--outline),inset 0 -10px 0 #3F4F68"></div>
+          </div>
+        </div>
+        <div class="shaft"><div class="lift" style="background:var(--cream)"><div></div><div></div></div></div>
+      </div>
+      <div class="car" id="car"></div>
+    </div>
+    <div class="street"></div>
+  </section>
+  <aside aria-label="Who is where">
+    <section id="desk" aria-label="The front desk" style="display:none">
+      <h2 class="pix">Front desk</h2>
+      <div class="small" id="deskinfo"></div>
+      <div id="asks" style="display:flex;flex-direction:column;gap:8px"></div>
+      <div id="vault" class="panel"></div>
+      <div id="turned" class="small"></div>
+      <div id="ignored" class="small"></div>
+    </section>
+    <section class="panel" aria-label="Sales">
+      <h3 class="pix">Sales</h3>
+      <div id="sales"></div>
+    </section>
+    <section class="panel" aria-label="Out in the world">
+      <h3 class="pix">Out in the world</h3>
+      <div class="small">Stores, networks and sites the company reached in the last two hours, from the door's log.</div>
+      <div id="reach" class="panel"></div>
+    </section>
+    <div class="meter" style="min-width:0"><div><span>Press space</span><span id="presstxt">...</span></div><div class="bar"><div id="pressbar" style="width:0;background:var(--violet)"></div></div></div>
+    <div id="cardwrap"></div>
+    <div class="small" style="margin-bottom:-8px">This cycle's tasks</div>
+    <div class="counts" id="counts"></div>
+    <h2 class="pix">Floor by floor</h2>
+    <div id="floorlist" style="display:flex;flex-direction:column;gap:8px"></div>
+    <a class="chip pix" href="http://127.0.0.1:8770" target="_blank" rel="noopener" style="justify-content:center;color:var(--cream);text-decoration:none;min-height:44px">Open the page they are making</a>
+  </aside>
+</main>
+<footer><h2 class="pix">The story so far</h2><div id="story"></div></footer>
+<script>
+const DESKS = 6;
+const ACCENTS = ['#f5a623', '#2dd4bf', '#ef476f', '#8b7cf6', '#E8DCC3', '#7FB069'];
+const BODY = { opus: ['#C8664A', '#8E4430'], sonnet: ['#6FA3D8', '#3F6E9E'], haiku: ['#8FC47A', '#5E8E4B'], unknown: ['#9A94A8', '#6B6578'] };
+const BADGE = { head: '#f5a623' };
+const ROMAN = ['', '', ' II', ' III', ' IV', ' V', ' VI'];
+let pinned = null, last = null, prevDoor = null, firstRender = true, pageVersion = null, lastSig = null;
+let cardSig = null, floorSig = null, lastFloors = [];
+// The front desk answers from the Mac only: the desk server is not on the box's network.
+const DESK_URL = 'http://127.0.0.1:8772';
+const ON_MAC = ['127.0.0.1', 'localhost'].includes(location.hostname);
+let deskOnline = false, asksSig = null, asksShown = null, vaultSig = null, lookSig = null, lastList = [];
+// sentIds: answers the desk took that the office has not shown yet; deskShas: the text each card was typed against.
+const deskNotes = {}, deskOpen = new Set(), deskMsg = {}, deskValues = {}, deskShas = {}, sentIds = new Set();
+const HEX = /^#[0-9a-fA-F]{6}$/;
+const hex = (c, fallback) => (typeof c === 'string' && HEX.test(c) ? c : fallback);
+const seen = new Set();
+const $ = (id) => document.getElementById(id);
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; }
+function family(m) { m = (m || '').toLowerCase(); return m.includes('opus') ? 'opus' : m.includes('sonnet') ? 'sonnet' : m.includes('haiku') ? 'haiku' : 'unknown'; }
+function pretty(m) { return { opus: 'Opus 5.5', sonnet: 'Sonnet 5.5', haiku: 'Haiku 4.5', unknown: '' }[family(m)]; }
+function title(role) { return role === 'head' ? 'The Head' : role.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); }
+function plural(role) { const t = title(role); return t.endsWith('s') ? t : t + 's'; }
+function clock(ts) { return ts ? new Date(ts * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''; }
+function pct(x) { return x == null ? '...' : Math.round(x * 100) + '%'; }
+
+function sprite(color, dark, accessory, lit, wear, facing) {
+  const w = el('div', 'sprite'), on = wear || {}, dx = facing === 'right' ? 3 : facing === 'left' ? -3 : 0;
+  const parts = [[16, 0, 4, 8, '#2A2430'], ...(on.cap ? [] : [[12, -4, 12, 6, accessory, true]]), [3, 8, 30, 20, color, true, dark], [8, 12, 20, 9, '#1B1A24'],
+    [11 + dx, 14, 4, 4, lit ? '#9FF5E6' : '#E8E4D8', false, null, 'eye'], [21 + dx, 14, 4, 4, lit ? '#9FF5E6' : '#E8E4D8', false, null, 'eye'], [8, 30, 20, 14, color, true, dark]];
+  // Merch the company handed out (company/look.json): drawn over the robot, never instead of it.
+  if (on.shirt) parts.push([8, 35, 20, 6, on.shirt]);
+  if (on.scarf) parts.push([6, 27, 24, 4, on.scarf, true]);
+  if (on.badge) parts.push([21, 34, 5, 5, on.badge, true]);
+  if (on.cap) parts.push([9, 1, 18, 7, on.cap, true], [23, 6, 12, 3, on.cap, true]);
+  if (on.headphones) parts.push([5, 3, 26, 3, on.headphones], [0, 12, 5, 10, on.headphones, true], [31, 12, 5, 10, on.headphones, true]);
+  for (const [x, y, pw, ph, bg, outline, shade, cls] of parts) {
+    const p = el('div', 'p' + (cls ? ' ' + cls : ''));
+    Object.assign(p.style, { left: x + 'px', top: y + 'px', width: pw + 'px', height: ph + 'px', background: bg });
+    if (outline) p.style.boxShadow = (shade ? 'inset 0 -4px 0 ' + shade + ', ' : '') + '0 0 0 2px #2A2430';
+    w.appendChild(p);
+  }
+  return w;
+}
+function looks(a) { return BODY[family(a.model || a.hired_model || (a.role === 'head' ? 'opus' : ''))]; }
+function wearing(a, s) {
+  const on = {};
+  for (const m of ((s.look || {}).merch || [])) {
+    if (m.for === 'everyone' || m.for === a.role) on[m.item] = hex(m.color, null) || on[m.item];
+  }
+  return on;
+}
+
+// Decorations the company chose, as small pixel things along a wall. Text only ever goes in as text.
+function box(w, h, bg, extra) { const d = el('div', 'x'); Object.assign(d.style, { width: w + 'px', height: h + 'px', background: bg }, extra || {}); return d; }
+function thing(t, night) {
+  const c = hex(t.color, null), wrap = el('div', 'thing'), add = (n) => { wrap.appendChild(n); return n; };
+  const label = (w, color) => { const x = el('div', 'txt', t.text || ''); x.style.maxWidth = w + 'px'; if (color) x.style.color = color; return x; };
+  switch (t.thing) {
+    case 'plant': add(box(16, 14, '#5E8E4B')); add(box(10, 8, c || '#A0522D')); break;
+    case 'tall-plant': add(box(14, 26, '#5E8E4B')); add(box(10, 8, c || '#A0522D')); break;
+    case 'lamp': add(box(16, 8, c || '#f5a623')); add(box(3, 16, '#2A2430', { boxShadow: 'none' })); add(box(10, 3, '#2A2430')); break;
+    case 'poster': { const p = add(box(32, 36, c || '#ef476f', { display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2px' })); p.appendChild(label(28)); p.firstChild.style.whiteSpace = 'normal'; break; }
+    case 'painting': { const f = add(box(36, 26, '#6E4A30', { padding: '4px' })); const i = box(28, 18, c || '#6FA3D8', { boxShadow: 'none' }); i.appendChild(box(6, 6, '#f5a623', { boxShadow: 'none', marginLeft: '18px', marginTop: '3px' })); f.appendChild(i); break; }
+    case 'clock': { const k = add(box(18, 18, '#FBF8F1', { position: 'relative' })); k.appendChild(box(2, 7, '#2A2430', { position: 'absolute', left: '8px', top: '2px', boxShadow: 'none' })); k.appendChild(box(6, 2, '#2A2430', { position: 'absolute', left: '9px', top: '8px', boxShadow: 'none' })); break; }
+    case 'banner': { const b = add(box(null, 14, c || '#2dd4bf', { minWidth: '60px', padding: '0 6px', display: 'flex', alignItems: 'center', justifyContent: 'center' })); b.style.width = 'auto'; b.appendChild(label(120, '#15141C')); break; }
+    case 'neon': { const n = add(el('div', 'pix', t.text || 'OPEN')); Object.assign(n.style, { fontSize: '14px', color: c || '#2dd4bf', textShadow: '0 0 6px ' + (c || '#2dd4bf') }); break; }
+    case 'window': { const w = add(box(30, 24, night ? '#1E2A4A' : '#9FD3F0', { position: 'relative' })); w.appendChild(box(2, 24, '#2A2430', { position: 'absolute', left: '14px', boxShadow: 'none' })); w.appendChild(box(30, 2, '#2A2430', { position: 'absolute', top: '11px', boxShadow: 'none' })); break; }
+    case 'whiteboard': { const w = add(box(48, 28, '#FBF8F1', { display: 'flex', alignItems: 'center', justifyContent: 'center' })); w.appendChild(label(44, '#2B3345')); break; }
+    case 'trophy': add(box(12, 10, c || '#f5a623')); add(box(4, 4, c || '#f5a623', { boxShadow: 'none' })); add(box(14, 3, '#6E4A30')); if (t.text) add(label(60, '#2A2430')); break;
+    case 'bookshelf': { const b = add(box(30, 34, '#6E4A30', { display: 'flex', flexDirection: 'column', justifyContent: 'space-around', padding: '2px' })); for (let r = 0; r < 3; r++) { const row = box(26, 8, 'transparent', { display: 'flex', gap: '1px', boxShadow: 'none' }); for (const col of ['#ef476f', '#2dd4bf', '#f5a623', '#8b7cf6', '#E8DCC3']) row.appendChild(box(4, 8, col, { boxShadow: 'none' })); b.appendChild(row); } break; }
+    case 'aquarium': { const a = add(box(30, 20, c || '#4FA3D1', { position: 'relative' })); a.appendChild(box(6, 4, '#f5a623', { position: 'absolute', left: '8px', top: '8px', boxShadow: 'none' })); break; }
+    case 'server-rack': { const r = add(box(16, 34, '#2B3345', { display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center', paddingTop: '4px' })); for (let i = 0; i < 4; i++) { const d = box(10, 3, i % 2 ? '#2dd4bf' : '#7FB069', { boxShadow: 'none' }); d.className = 'x pulse'; r.appendChild(d); } break; }
+    case 'arcade': { const a = add(box(18, 32, c || '#8b7cf6', { display: 'flex', justifyContent: 'center', paddingTop: '4px' })); a.appendChild(box(12, 8, '#9FF5E6', { boxShadow: 'none' })); break; }
+    case 'flag': { const f = el('div'); f.style.display = 'flex'; f.style.alignItems = 'flex-start'; f.appendChild(box(2, 32, '#2A2430', { boxShadow: 'none' })); const fl = box(24, 14, c || '#ef476f', { display: 'flex', alignItems: 'center', justifyContent: 'center' }); fl.appendChild(label(22)); f.appendChild(fl); add(f); break; }
+    case 'beanbag': add(box(26, 12, c || '#ef476f')); break;
+  }
+  return wrap;
+}
+function decorBand(items, night) {
+  const band = el('div', 'decor');
+  for (const t of items || []) band.appendChild(thing(t, night));
+  return band;
+}
+function logoGrid(logo, cell) {
+  const holder = el('span');
+  if (!logo || !Array.isArray(logo.pixels)) return holder;
+  const width = Math.max(...logo.pixels.map((r) => r.length));
+  const grid = el('span', 'logo');
+  grid.style.gridTemplateColumns = 'repeat(' + width + ', ' + cell + 'px)';
+  for (const row of logo.pixels) {
+    for (let i = 0; i < width; i++) {
+      const px = el('span'); px.style.width = cell + 'px'; px.style.height = cell + 'px';
+      px.style.background = hex((logo.colors || {})[row[i]], 'transparent');
+      grid.appendChild(px);
+    }
+  }
+  holder.appendChild(grid);
+  return holder;
+}
+
+// The building, from the server's list: the Head on top, one floor per role (six desks each,
+// annex floors for more), and everyone not at a desk in the lounge above the lobby.
+function plan(s) {
+  const list = s.agents.map((a) => ({ ...a, role: a.role || a.id }));
+  const count = {}; for (const a of list) count[a.role] = (count[a.role] || 0) + 1;
+  for (const a of list) a.key = a.id === 'head' ? 'head' : count[a.role] === 1 ? a.role : a.id;
+  const head = list.find((a) => a.id === 'head');
+  const roles = [...new Set(list.filter((a) => a.id !== 'head').map((a) => a.role))].sort();
+  const floors = [];
+  for (const role of roles) {
+    const team = list.filter((a) => a.role === role);
+    const busy = team.filter((a) => a.session === 'running');
+    const extra = Math.max(1, Math.ceil(busy.length / DESKS));
+    for (let k = 0; k < extra; k++) {
+      floors.push({ key: role + '/' + k, role, name: plural(role) + ROMAN[k + 1], desks: busy.slice(k * DESKS, (k + 1) * DESKS), nook: [],
+                    model: (team[0] && (team[0].hired_model || team[0].model)) || '', effort: team[0] && (team[0].hired_effort || team[0].effort) });
+    }
+  }
+  floors.reverse();  // the first role alphabetically sits lowest
+  const lounge = list.filter((a) => a.id !== 'head' && a.session !== 'running')
+    .sort((a, b) => a.role.localeCompare(b.role) || (a.name || '').localeCompare(b.name || ''));
+  const all = [{ key: 'head', role: 'head', name: 'Head office', desks: head ? [head] : [], nook: [], model: 'claude-opus-5-5', effort: 'max', head: true }, ...floors,
+               { key: 'lounge', role: 'lounge', name: 'Lounge', desks: [], nook: lounge, lounge: true, model: '', effort: '' }];
+  all.forEach((f, i) => { f.n = String(all.length - i); });
+  return { list, floors: all, head };
+}
+
+function situation(a, s) {
+  const running = a.session === 'running';
+  const helpers = (a.helpers || []).filter((h) => h.status === 'running').length;
+  const next = s.tasks.find((t) => t.role === a.role && t.status === 'queued');
+  if (running) return { state: a.state === 'thinking' ? 'thinking' : 'working', task: a.task_title || (a.role === 'head' ? 'Planning the next cycle' : 'A task'),
+                        activity: (a.state === 'thinking' ? 'thinking' : a.activity || 'working') + (helpers ? ' · with ' + helpers + (helpers === 1 ? ' helper' : ' helpers') : '') };
+  if (a.role === 'head') return { state: 'resting', task: a.session === 'ended' ? 'The plan for this cycle is out' : 'Waiting for the next cycle', activity: '' };
+  if (a.session === 'ended') return { state: 'resting', task: 'Finished: ' + (a.task_title || 'the task'), activity: next ? 'next up: ' + next.title : 'on a coffee break' };
+  return { state: 'resting', task: next ? 'Next up: ' + next.title : 'No task yet', activity: 'on a coffee break' };
+}
+
+function personAtDesk(a, s) {
+  const sit = situation(a, s), [color, dark] = looks(a);
+  const accessory = a.role === 'head' ? '#f5a623' : ACCENTS[hash(a.role) % ACCENTS.length];
+  const b = el('button', 'person atdesk ' + sit.state + (pinned === a.key ? ' on' : '')); b.type = 'button'; b.dataset.key = a.key;
+  b.setAttribute('aria-label', (a.name || title(a.role)) + ': ' + sit.task);
+  pick(b, a);
+  const bubble = el('div', 'bubble'); bubble.appendChild(el('div', 't pix', sit.task)); bubble.appendChild(el('div', 'a', sit.activity));
+  b.appendChild(bubble); b.appendChild(sprite(color, dark, accessory, true, wearing(a, s)));
+  if (!firstRender && !seen.has(a.key)) b.classList.add('arriving');
+  return b;
+}
+
+// The whip. Pure animation: a crack, a jolt, and four seconds of frantic typing (or jumping, in the
+// lounge). Nothing reaches the agents; their work runs at its own pace whatever happens here.
+let whipMode = false, cracks = 0;
+const whipped = new Map();  // person -> until when they look hurried, kept across redraws
+const CRACKS = ['CRACK!', 'SNAP!', 'faster!', 'chop chop!', 'go go go!'];
+function pick(b, a) {
+  if ((whipped.get(a.key) || 0) > Date.now()) b.classList.add('whipped');
+  b.appendChild(el('div', 'sweat'));
+  b.addEventListener('click', (event) => {
+    if (whipMode) { whip(a, b, event); return; }
+    pinned = pinned === a.key ? null : a.key; render(last);
+  });
+}
+// A real lash: a rope of thirty links hanging from a handle, moved by simple physics (each link keeps
+// its speed, gravity pulls, and the links hold their length). The handle swings back and drives
+// forward, the loop rolls out, and the tip is drawn onto the robot you clicked. At the snap: sparks,
+// a crack you can hear, a shake. Then the rope drops and fades.
+let audio = null;
+function crackSound() {
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    const n = Math.floor(audio.sampleRate * 0.12), buffer = audio.createBuffer(1, n, audio.sampleRate), data = buffer.getChannelData(0);
+    for (let i = 0; i < n; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 7);
+    const source = audio.createBufferSource(), bright = audio.createBiquadFilter(), level = audio.createGain();
+    source.buffer = buffer; bright.type = 'highpass'; bright.frequency.value = 1400; level.gain.value = 0.55;
+    source.connect(bright).connect(level).connect(audio.destination); source.start();
+  } catch (error) { /* no sound is fine */ }
+}
+function lash(tx, ty, onSnap) {
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) { onSnap(); return; }
+  const W = innerWidth, H = innerHeight, ratio = devicePixelRatio || 1;
+  const canvas = el('canvas');
+  canvas.width = W * ratio; canvas.height = H * ratio;
+  Object.assign(canvas.style, { position: 'fixed', left: '0', top: '0', width: W + 'px', height: H + 'px', pointerEvents: 'none', zIndex: '59' });
+  document.body.appendChild(canvas);
+  const g = canvas.getContext('2d'); g.scale(ratio, ratio);
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const side = tx > W / 2 ? 1 : -1;  // stand on the side with more room
+  const hx0 = clamp(tx - side * 220, 30, W - 30), hy0 = clamp(ty + 150, 30, H - 30);
+  const N = 30, seg = Math.hypot(tx - hx0, ty - hy0) * 1.3 / N;
+  const pts = [];
+  for (let i = 0; i <= N; i++) { const x = hx0 - side * seg * i * 0.85, y = hy0 + seg * i * 0.35; pts.push({ x, y, px: x, py: y }); }
+  const ease = (t) => t < 0 ? 0 : t > 1 ? 1 : t * t * (3 - 2 * t);
+  const hand = (ms) => {
+    const back = ease(ms / 150), fwd = ease((ms - 150) / 170);
+    return { x: hx0 - side * 60 * back + side * 140 * fwd, y: hy0 + 40 * back - 110 * fwd };
+  };
+  let snapped = null, impact = null, t0 = performance.now(), sparks = [];
+  function step(now) {
+    const ms = now - t0, h = hand(ms);
+    for (let sub = 0; sub < 3; sub++) {
+      pts[0].x = h.x; pts[0].y = h.y;
+      for (let i = 1; i <= N; i++) {
+        const p = pts[i], vx = (p.x - p.px) * 0.985, vy = (p.y - p.py) * 0.985 + (snapped ? 0.35 : 0.12);
+        p.px = p.x; p.py = p.y; p.x += vx; p.y += vy;
+      }
+      if (!snapped && ms > 170) {  // the loop rolls out: the last links are drawn toward the target
+        const k = Math.min(0.22, (ms - 170) / 900);
+        for (let i = N - 8; i <= N; i++) { const w = (i - (N - 8)) / 8; pts[i].x += (tx - pts[i].x) * k * w; pts[i].y += (ty - pts[i].y) * k * w; }
+      }
+      for (let it = 0; it < 12; it++) {
+        for (let i = 0; i < N; i++) {
+          const a = pts[i], b = pts[i + 1], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 0.001, diff = (d - seg) / d;
+          if (i === 0) { b.x -= dx * diff; b.y -= dy * diff; }
+          else { a.x += dx * diff * 0.5; a.y += dy * diff * 0.5; b.x -= dx * diff * 0.5; b.y -= dy * diff * 0.5; }
+        }
+      }
+    }
+    const tip = pts[N];
+    if (!snapped && (Math.hypot(tip.x - tx, tip.y - ty) < 16 || ms > 520)) {
+      snapped = ms;
+      tip.x = tx; tip.y = ty; impact = { x: tx, y: ty };  // the crack lands exactly where you clicked
+      for (let i = 0; i < 10; i++) { const angle = i / 10 * Math.PI * 2 + Math.random() * 0.4; sparks.push({ angle, len: 10 + Math.random() * 14 }); }
+      tip.px = tip.x + (tip.x - tx) * 0.2; tip.py = tip.y + (tip.y - ty) * 0.2;
+      crackSound();
+      const city = $('city'); city.classList.remove('shake'); void city.offsetWidth; city.classList.add('shake');
+      onSnap(tx, ty);
+    }
+    const fade = snapped ? Math.max(0, 1 - (ms - snapped - 120) / 380) : 1;
+    g.clearRect(0, 0, W, H);
+    g.globalAlpha = fade; g.lineCap = 'round'; g.lineJoin = 'round';
+    for (const [width, colour] of [[2.5, '#2A2430'], [0, '#9A6A42']]) {  // an outline, then the leather
+      for (let i = 0; i < N; i++) {
+        const taper = 6 - 4.5 * i / N;
+        g.strokeStyle = colour; g.lineWidth = taper + width;
+        g.beginPath(); g.moveTo(pts[i].x, pts[i].y);
+        const mx = (pts[i + 1].x + (pts[i + 2] || pts[i + 1]).x) / 2, my = (pts[i + 1].y + (pts[i + 2] || pts[i + 1]).y) / 2;
+        g.quadraticCurveTo(pts[i + 1].x, pts[i + 1].y, mx, my); g.stroke();
+      }
+    }
+    const angle = Math.atan2(pts[1].y - pts[0].y, pts[1].x - pts[0].x);
+    g.save(); g.translate(pts[0].x, pts[0].y); g.rotate(angle + Math.PI);
+    g.fillStyle = '#6E4A30'; g.strokeStyle = '#2A2430'; g.lineWidth = 2; g.fillRect(0, -4, 30, 8); g.strokeRect(0, -4, 30, 8);
+    g.fillStyle = '#C49A62'; g.fillRect(4, -4, 3, 8); g.fillRect(12, -4, 3, 8);
+    g.restore();
+    if (snapped && ms - snapped < 150) {
+      const glow = 1 - (ms - snapped) / 150;
+      g.globalAlpha = glow; g.strokeStyle = '#FFF6D5'; g.lineWidth = 2;
+      for (const s of sparks) { g.beginPath(); g.moveTo(impact.x + Math.cos(s.angle) * 4, impact.y + Math.sin(s.angle) * 4); g.lineTo(impact.x + Math.cos(s.angle) * s.len, impact.y + Math.sin(s.angle) * s.len); g.stroke(); }
+      g.fillStyle = '#f5a623'; g.beginPath(); g.arc(impact.x, impact.y, 6 * glow + 2, 0, Math.PI * 2); g.fill();
+    }
+    g.globalAlpha = 1;
+    if (snapped && ms - snapped > 520) { canvas.remove(); return; }
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function whip(a, b, event) {
+  cracks++; $('whipbtn').textContent = 'Whip · ' + cracks;
+  const word = CRACKS[cracks % CRACKS.length];
+  lash(event.clientX, event.clientY, (x, y) => {
+    whipped.set(a.key, Date.now() + 4000);
+    const live = document.querySelector('[data-key="' + CSS.escape(a.key) + '"]') || b;  // the tower may have redrawn
+    live.classList.remove('jolt'); void live.offsetWidth; live.classList.add('jolt', 'whipped');
+    const pop = el('div', 'crack pix', word);
+    pop.style.left = (x || event.clientX) + 'px'; pop.style.top = (y || event.clientY) + 'px';
+    document.body.appendChild(pop); setTimeout(() => pop.remove(), 850);
+    const say = live.querySelector('.say');
+    if (say) { const was = say.textContent; say.textContent = 'eep!'; say.classList.add('shout'); setTimeout(() => { say.textContent = was; say.classList.remove('shout'); }, 1500); }
+    setTimeout(() => {
+      if ((whipped.get(a.key) || 0) > Date.now()) return;
+      whipped.delete(a.key);
+      document.querySelectorAll('[data-key="' + CSS.escape(a.key) + '"]').forEach((n) => n.classList.remove('whipped'));
+    }, 4100);
+  });
+}
+function setWhip(on) {
+  whipMode = on; document.body.classList.toggle('whipmode', on);
+  $('whipbtn').classList.toggle('armed', on); $('whipbtn').setAttribute('aria-pressed', String(on));
+}
+$('whipbtn').addEventListener('click', () => setWhip(!whipMode));
+document.addEventListener('keydown', (event) => { if (event.key === 'Escape') setWhip(false); });
+
+// The lounge: everyone not at a desk, team by team, on sofas facing each other around coffee tables,
+// taking turns to chat, and two of them at the ping-pong table. These are not sessions: nothing here
+// calls a model. Every movement is a CSS animation, staggered by name so nobody moves in step.
+const CHAT = ['...', 'ha!', '?', '!', 'ooh', 'hm', 'nice', 'lol', 'ok', 'wow'];
+const SOFAS = ['#8b7cf6', '#2dd4bf', '#ef476f', '#f5a623', '#6FA3D8', '#7FB069'];
+function lounger(a, s, facing, delay) {
+  const [color, dark] = looks(a), on = wearing(a, s);
+  const b = el('button', 'lounger chatty resting'); b.type = 'button'; b.dataset.key = a.key;
+  b.setAttribute('aria-label', (a.name || title(a.role)) + ' (' + title(a.role) + '): ' + situation(a, s).task);
+  pick(b, a);
+  if (pinned === a.key) b.style.outline = '3px dashed var(--accent)';
+  const say = el('div', 'say pix', CHAT[hash(a.name || a.key) % CHAT.length]);
+  const sp = sprite(color, dark, ACCENTS[hash(a.role) % ACCENTS.length], false, on, facing);
+  say.style.animationDelay = sp.style.animationDelay = delay + 's';
+  b.appendChild(say); b.appendChild(sp); b.appendChild(el('div', 'zz pix', 'z z'));
+  return b;
+}
+function tags(people) {
+  const row = el('div', 'names');
+  for (const a of people) row.appendChild(el('div', 'tag pix', a.name || title(a.role)));
+  return row;
+}
+function sofa(people, facing, colour, delays) {
+  const box = el('div', 'sofa'); box.style.width = Math.max(1, people.length) * 44 + 8 + 'px';
+  const back = el('div', 'back'), front = el('div', 'front');
+  back.style.background = colour; front.style.background = colour;
+  front.style.boxShadow = 'inset 0 -5px 0 rgba(0,0,0,.25), 0 0 0 3px #2A2430';
+  const sitters = el('div', 'sitters');
+  people.forEach((a, i) => sitters.appendChild(lounger(a, last, facing, delays[i])));
+  box.appendChild(back); box.appendChild(sitters); box.appendChild(front); box.appendChild(tags(people));
+  return box;
+}
+function pod(people, index, s) {
+  const p = el('div', 'pod'), colour = SOFAS[index % SOFAS.length];
+  p.appendChild(el('div', 'rug'));
+  const left = people.slice(0, 2), right = people.slice(2, 4);
+  // Turns to talk: within a pod each person speaks in their own slot of the nine-second cycle.
+  const delay = (k) => -((index * 1.7 + k * 2.2) % 9);
+  p.appendChild(sofa(left, 'right', colour, [delay(0), delay(1)]));
+  const table = el('div', 'ctable'); table.appendChild(el('div', 'top'));
+  for (const x of [4, 31]) { const leg = el('div', 'leg'); leg.style.left = x + 'px'; table.appendChild(leg); }
+  for (const [x, a] of [[6, left[0]], [24, right[0] || left[1]]]) {
+    if (!a) continue;
+    const m = el('div', 'mug'); m.style.left = x + 'px'; m.style.background = wearing(a, s).mug || '#FBF8F1'; table.appendChild(m);
+  }
+  p.appendChild(table);
+  if (right.length) p.appendChild(sofa(right, 'left', colour, [delay(2), delay(3)]));
+  return p;
+}
+function pingpong(pair, s) {
+  const box = el('div', 'pingpong');
+  box.appendChild(el('div', 'ptable'));
+  for (const x of [60, 160]) { const leg = el('div', 'pleg'); leg.style.left = x + 'px'; box.appendChild(leg); }
+  const ball = el('div', 'ball'); ball.appendChild(el('div')); box.appendChild(ball);
+  pair.forEach((a, i) => {
+    const [color, dark] = looks(a);
+    const b = el('button', 'lounger player'); b.type = 'button'; b.dataset.key = a.key; b.style[i ? 'right' : 'left'] = '4px';
+    b.setAttribute('aria-label', (a.name || title(a.role)) + ' (' + title(a.role) + '): playing ping-pong');
+    pick(b, a);
+    if (pinned === a.key) b.style.outline = '3px dashed var(--accent)';
+    b.appendChild(sprite(color, dark, ACCENTS[hash(a.role) % ACCENTS.length], false, wearing(a, s), i ? 'left' : 'right'));
+    const paddle = el('div', 'paddle'); paddle.style[i ? 'left' : 'right'] = '-6px'; b.appendChild(paddle);
+    box.appendChild(b);
+  });
+  const names = tags(pair); names.style.justifyContent = 'space-between'; names.style.bottom = '-6px'; box.appendChild(names);
+  return box;
+}
+function loungeFloor(f, s, night) {
+  const row = el('div', 'floor lounge');
+  const label = el('div', 'label');
+  const n = el('div', 'n pix', f.n); n.style.color = '#E8DCC3';
+  label.appendChild(n); label.appendChild(el('div', 'd pix', 'Lounge'));
+  label.appendChild(el('div', 'm', f.nook.length ? f.nook.length + ' taking a break' : 'everyone is at work'));
+  const room = el('div', 'room loungeroom');
+  const wall = el('div', 'lwall');
+  wall.appendChild(el('div', 'lwin')); const tv = el('div', 'ltv'); tv.appendChild(el('div')); wall.appendChild(tv); wall.appendChild(el('div', 'lwin'));
+  room.appendChild(wall);
+  const people = [...f.nook];
+  // Two play ping-pong once there are enough people for it; everyone else sits, four to a table.
+  if (people.length >= 6) room.appendChild(pingpong(people.splice(0, 2), s));
+  for (let i = 0; i < people.length; i += 4) room.appendChild(pod(people.slice(i, i + 4), i / 4, s));
+  if (!f.nook.length) room.appendChild(el('div', 'empty pix', 'Everyone is at a desk right now.'));
+  const lamp = el('div', 'plamp'); lamp.appendChild(el('div')); lamp.appendChild(el('div')); room.appendChild(lamp);
+  const machine = el('div', 'machine'); machine.appendChild(el('div')); machine.style.marginBottom = '12px'; room.appendChild(machine);
+  const shaft = el('div', 'shaft'); const lift = el('div', 'lift'); lift.appendChild(el('div')); lift.appendChild(el('div')); shaft.appendChild(lift);
+  row.appendChild(label); row.appendChild(room); row.appendChild(shaft);
+  return row;
+}
+
+function ride(floorEl) {
+  // A new hire comes up from the lobby in the elevator.
+  const car = $('car'), tower = $('tower');
+  car.style.transition = 'none'; car.style.display = 'block';
+  car.style.top = (tower.offsetHeight - 200 + 94) + 'px';
+  void car.offsetWidth;
+  car.style.transition = '';
+  car.style.top = (floorEl.offsetTop + 64) + 'px';
+  setTimeout(() => { car.style.display = 'none'; document.querySelectorAll('.arriving').forEach((p) => p.classList.remove('arriving')); }, 1700);
+}
+
+function render(s) {
+  if (!s) return;
+  $('company').textContent = s.company || 'The company';
+  const phase = { orchestrator: 'the Head is planning', workers: 'the team is working', ended: 'cycle over', starting: 'starting', stopped: 'stopped, nobody is working' }[s.cycle.phase] || '';
+  $('cycle').textContent = s.cycle.n != null ? 'Cycle ' + s.cycle.n + ' · ' + phase : 'No cycle yet';
+  const hb = s.heartbeat || {}, night = hb.status === 'stopped' || hb.status === 'sleeping';
+  $('hb').textContent = { running: 'Open', sleeping: 'Sleeping', stopped: 'Closed', 'not started': 'Open · first day' }[hb.status] || hb.status;
+  $('hbdot').style.background = night ? '#8b7cf6' : 'var(--accent)';
+  $('world').className = night ? 'night' : '';
+  $('clock').textContent = clock(s.now);
+  const share = hb.week_used_pp || 0, w = (s.usage && s.usage.unifiedWindows) || {};
+  const cap = hb.share_pp || 20;  // the cap the heartbeat was started with
+  $('sharetxt').textContent = share + ' / ' + cap + ' pts'; $('sharebar').style.width = Math.min(100, share / cap * 100) + '%';
+  $('fivetxt').textContent = pct(w.five_hour && w.five_hour.utilization); $('fivebar').style.width = ((w.five_hour && w.five_hour.utilization) || 0) * 100 + '%';
+  $('weektxt').textContent = pct(w.seven_day && w.seven_day.utilization); $('weekbar').style.width = ((w.seven_day && w.seven_day.utilization) || 0) * 100 + '%';
+  $('tvtitle').textContent = s.view.files ? (s.view.title || 'their page') : 'Nothing yet';
+  $('tvmeta').textContent = s.view.files ? s.view.files + ' files so far' : '';
+
+  const { list, floors } = plan(s);
+  lastList = list;
+  const look = s.look || {}, colors = look.colors || {}, floorLook = look.floors || {};
+  applyLook(s, look, colors, night);
+  // Redraw the tower only when something in it changed, so the robots' own animations keep running and
+  // a click on one is never lost to a redraw. What each is doing changes with every tool call, so that
+  // text is not part of it: it is written into the bubbles in place, below.
+  const sig = JSON.stringify([pinned, night, lookSig, floors.map((f) => [f.key, f.desks.map((a) => {
+    const sit = situation(a, s);
+    return [a.key, a.name, a.session, a.state, sit.state, sit.task];
+  }), f.nook.map((a) => a.key)])]);
+  const changed = sig !== lastSig; lastSig = sig;
+  const holder = $('floors');
+  let arrivalFloor = null;
+  if (changed) holder.textContent = '';
+  for (const f of changed ? floors : []) {
+    if (f.lounge) { holder.appendChild(loungeFloor(f, s, night)); continue; }
+    const row = el('div', 'floor');
+    const label = el('div', 'label');
+    const n = el('div', 'n pix', f.n); n.style.color = f.head ? BADGE.head : ACCENTS[hash(f.role) % ACCENTS.length];
+    const mine = f.head ? (look.head || {}) : (floorLook[f.role] || {});
+    const own = !f.head && mine.name ? mine.name + ROMAN[Number(f.key.split('/')[1]) + 1] : null;
+    label.appendChild(n); label.appendChild(el('div', 'd pix', own || f.name));
+    label.appendChild(el('div', 'm', [own ? plural(f.role) : '', pretty(f.model), f.effort && f.effort !== 'none' ? f.effort : ''].filter(Boolean).join(' · ')));
+    const room = el('div', 'room' + (f.desks.some((a) => a.session === 'running') ? '' : ' dim'));
+    const wall = hex(f.head ? colors.head : mine.wall, null);
+    if (wall && !night) room.style.background = wall;
+    if (mine.decor && mine.decor.length) room.appendChild(decorBand(mine.decor, night));
+    const seats = f.head ? 1 : DESKS;
+    for (let i = 0; i < seats; i++) {
+      const a = f.desks[i], slot = el('div', 'slot');
+      if (f.head) slot.style.width = '170px';
+      if (a && (a.session === 'running' || f.head)) {
+        slot.appendChild(personAtDesk(a, s));
+        if (!firstRender && !seen.has(a.key) && !f.head) arrivalFloor = row;
+      }
+      const desk = el('div', 'desk' + (a ? '' : ' free'));
+      if (f.head) desk.style.width = '150px';
+      const mon = el('div', 'mon'); if (a && a.session === 'running') mon.style.background = 'var(--accent)';
+      desk.appendChild(mon); desk.appendChild(el('div', 'plate pix', a ? ((a.name || title(a.role)) + (f.head ? '' : ' · ' + title(a.role))).toUpperCase() : 'FREE DESK'));
+      const mug = a && wearing(a, s).mug;
+      if (mug) { const m = box(7, 8, mug, { position: 'absolute', right: '8px', top: '-10px' }); desk.appendChild(m); }
+      slot.appendChild(desk); room.appendChild(slot);
+    }
+    if (!f.head) {
+      const nook = el('div', 'nook');
+      const machine = el('div', 'machine'); machine.appendChild(el('div')); nook.appendChild(machine);
+      room.appendChild(nook);
+    }
+    const shaft = el('div', 'shaft'); const lift = el('div', 'lift'); lift.appendChild(el('div')); lift.appendChild(el('div')); shaft.appendChild(lift);
+    row.appendChild(label); row.appendChild(room); row.appendChild(shaft);
+    holder.appendChild(row);
+  }
+  if (arrivalFloor) ride(arrivalFloor);
+  for (const a of list) seen.add(a.key);
+  for (const f of floors) {
+    for (const a of f.desks) {
+      const line = holder.querySelector('.person[data-key="' + CSS.escape(a.key) + '"] .bubble .a');
+      const activity = situation(a, s).activity;
+      if (line && line.textContent !== activity) line.textContent = activity;
+    }
+  }
+
+  const dir = $('directory'); if (changed) dir.textContent = '';
+  for (const f of changed ? floors : []) {
+    const line = el('div'); Object.assign(line.style, { display: 'flex', justifyContent: 'space-between', fontSize: '10px', lineHeight: '14px', color: '#F3EFE6' });
+    const busy = f.desks.filter((a) => a.session === 'running').length;
+    line.appendChild(el('span', null, f.n + ' · ' + f.name));
+    const c = el('span', null, f.head ? '' : f.lounge ? f.nook.length + ' relaxing' : busy + ' at work'); c.style.color = '#B9B3C9'; line.appendChild(c);
+    dir.appendChild(line);
+  }
+
+  // The door's running totals: any move is a new connection, pink when one was refused. A restart of the
+  // office starts them again, so a change either way counts, not only growth.
+  const counts = s.door_counts || {};
+  if (prevDoor && (counts.allowed !== prevDoor.allowed || counts.refused !== prevDoor.refused)) {
+    $('doorlight').style.background = counts.refused !== prevDoor.refused ? 'var(--pink)' : 'var(--accent)';
+    setTimeout(() => { $('doorlight').style.background = '#2B3345'; }, 450);
+  }
+  prevDoor = counts;
+
+  // The side panel: whoever you picked, the work in numbers, and the floors. Each part is rebuilt only
+  // when what it shows changed, so a click or keyboard focus there survives the poll.
+  const picked = list.find((a) => a.key === pinned);
+  const cardNow = JSON.stringify(picked ? [picked.key, picked.name, picked.role, picked.model, picked.hired_model, picked.effort,
+                                           picked.hired_effort, picked.blurb, picked.session, situation(picked, s)] : null);
+  if (cardNow !== cardSig) { cardSig = cardNow; renderCard(picked, s); }
+  const groups = { queued: 0, started: 0, done: 0, stopped: 0 };
+  for (const t of s.tasks.filter((x) => x.cycle === s.cycle.n)) groups[t.status in groups ? t.status : 'stopped']++;
+  const cn = $('counts'); cn.textContent = '';
+  for (const [k, label] of [['queued', 'Queued'], ['started', 'Working on'], ['done', 'Done'], ['stopped', 'Cut off']]) {
+    const box = el('div'); box.appendChild(el('b', null, String(groups[k]))); box.appendChild(document.createTextNode(label)); cn.appendChild(box);
+  }
+  const people = (f) => [...f.desks.filter((a) => a.session === 'running' || f.head).map((a) => a.name || 'The Head'), ...f.nook.map((a) => (a.name || title(a.role)) + ' (' + title(a.role) + ')')];
+  const floorNow = JSON.stringify(floors.map((f) => [f.key, f.n, f.name, people(f)]));
+  lastFloors = floors;
+  const fl = $('floorlist');
+  if (floorNow !== floorSig) {
+    floorSig = floorNow; fl.textContent = '';
+    for (const f of floors) {
+      const row = el('button', 'fl'); row.type = 'button';
+      const n = el('div', 'n pix', f.n); n.style.color = f.head ? BADGE.head : ACCENTS[hash(f.role) % ACCENTS.length];
+      const body = el('div'); body.appendChild(el('div', 'pix', f.name));
+      body.appendChild(el('div', 'small', people(f).join(', ') || 'nobody yet'));
+      row.appendChild(n); row.appendChild(body);
+      // The floor as it is at the click, not as it was when this button was made.
+      row.addEventListener('click', () => {
+        const now = lastFloors.find((x) => x.key === f.key) || f, first = now.desks[0] || now.nook[0];
+        if (first) { pinned = first.key; render(last); }
+      });
+      fl.appendChild(row);
+    }
+  }
+
+  renderDesk(s);
+  renderWorld(s);
+  placePop();
+
+  const story = $('story'); story.textContent = '';
+  for (const e of (s.story || []).slice(-6).reverse()) {
+    const line = el('span'); line.appendChild(el('span', 't', clock(e.ts) + '  ')); line.appendChild(document.createTextNode(e.text)); story.appendChild(line);
+  }
+  if (!story.childNodes.length) story.appendChild(el('span', 't', 'Nothing has happened yet.'));
+  firstRender = false;
+}
+
+function renderCard(picked, s) {
+  const wrap = $('cardwrap'); wrap.textContent = '';
+  if (picked) {
+    const sit = situation(picked, s), card = el('div', 'card');
+    const who = el('div', 'who pix'); who.appendChild(document.createTextNode(picked.name || title(picked.role)));
+    if (picked.role !== 'head') who.appendChild(el('span', 'small', title(picked.role)));
+    const pill = el('span', 'pill pix', { working: 'Working', thinking: 'Thinking', resting: picked.session === 'ended' ? 'On a break' : 'Waiting' }[sit.state]);
+    pill.style.background = sit.state === 'working' ? 'var(--accent)' : sit.state === 'thinking' ? 'var(--violet)' : 'var(--amber)';
+    who.appendChild(pill); card.appendChild(who);
+    const effort = picked.effort || picked.hired_effort;
+    card.appendChild(el('div', 'small', pretty(picked.model || picked.hired_model || 'opus') + (effort && effort !== 'none' ? ' · effort ' + effort : '')));
+    if (picked.blurb) { const b = el('div', 'small', picked.blurb); b.style.marginTop = '6px'; card.appendChild(b); }
+    const t = el('div', null, sit.task); Object.assign(t.style, { marginTop: '8px', fontSize: '14px', lineHeight: '19px' }); card.appendChild(t);
+    if (sit.activity) card.appendChild(el('div', 'small', sit.activity));
+    wrap.appendChild(card);
+  } else {
+    wrap.appendChild(el('div', 'small', 'Click anyone in the tower to see what they are doing.'));
+  }
+}
+
+function placePop() {
+  const pop = $('pop');
+  const target = pinned && document.querySelector('[data-key="' + CSS.escape(pinned) + '"]');
+  const a = target && lastList.find((x) => x.key === pinned);
+  if (!a || !last) { pop.style.display = 'none'; return; }
+  const sit = situation(a, last);
+  pop.textContent = '';
+  pop.appendChild(el('div', 'w', (a.name || title(a.role)) + (a.role === 'head' ? '' : ' · ' + title(a.role))));
+  pop.appendChild(el('div', 't', sit.task));
+  if (sit.activity) pop.appendChild(el('div', 'a', sit.activity));
+  pop.style.display = 'block';
+  const r = target.getBoundingClientRect(), h = pop.offsetHeight, w = pop.offsetWidth;
+  const left = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), window.innerWidth - w - 8);
+  const above = r.top - h - 8;
+  pop.style.left = left + 'px';
+  pop.style.top = (above >= 8 ? above : Math.min(r.bottom + 8, window.innerHeight - h - 8)) + 'px';
+}
+window.addEventListener('scroll', placePop, { passive: true });
+window.addEventListener('resize', placePop);
+$('city').addEventListener('scroll', placePop, { passive: true });
+
+function applyLook(s, look, colors, night) {
+  $('city').style.background = night ? '' : hex(colors.sky, '');
+  $('tower').style.background = hex(colors.tower, '');
+  $('lobbyroom').style.background = night ? '' : hex(colors.lobby, '');
+  const sig = JSON.stringify([look, night]);
+  if (sig === lookSig) return;
+  lookSig = sig;
+  $('lobbysign').textContent = (look.sign || s.company || 'THE COMPANY').toUpperCase();
+  document.title = (s.company ? s.company + ' ' : '') + 'Tower';
+  $('motto').textContent = look.motto || '';
+  for (const [id, cell] of [['lobbylogo', 3], ['rooflogo', 2]]) { const h = $(id); h.textContent = ''; h.appendChild(logoGrid(look.logo, cell)); }
+  const band = $('lobbydecor'); band.textContent = '';
+  for (const t of ((look.lobby || {}).decor) || []) band.appendChild(thing(t, night));
+}
+
+// The front desk: what the Head asks you for, and what you provided. Redrawn only when something
+// changed, and never under the owner's cursor while the waiting requests stay the same, so a key being
+// pasted is never wiped by the next poll. Pasted values live in this page's memory until sent, never
+// in storage, and the office never shows them again.
+function when(ts) { return ts ? new Date(ts * 1000).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' }) : ''; }
+function typed() {
+  return Object.values(deskValues).some((v) => Object.values(v).some((x) => x && x.trim())) || Object.values(deskNotes).some((n) => n && n.trim());
+}
+function said(id) { return sentIds.has(id) ? 'Sent, waiting for the office.' : deskMsg[id] || ''; }
+function renderDesk(s) {
+  const desk = s.desk || {}, asks = desk.asks || [], vault = desk.vault || [], waiting = asks.filter((a) => a.status === 'waiting');
+  for (const a of asks) {
+    // The server says this one moved on: a sent answer stops showing as sent, and what was typed for it goes.
+    if (a.status !== 'waiting') { sentIds.delete(a.id); delete deskValues[a.id]; delete deskNotes[a.id]; }
+  }
+  for (const a of waiting) {
+    // A request whose text changed under the owner is another request: what was typed for the old one is dropped.
+    if (deskShas[a.id] && deskShas[a.id] !== a.sha256) {
+      delete deskValues[a.id]; delete deskNotes[a.id]; sentIds.delete(a.id);
+      deskMsg[a.id] = 'This request changed while it was open, so what you typed for it was dropped. Read it again.';
+    }
+    deskShas[a.id] = a.sha256;
+  }
+  const open = waiting.filter((a) => !sentIds.has(a.id));
+  $('desklight').className = 'desklight' + (open.length ? ' on' : '');
+  $('papers').style.height = Math.min(30, open.length * 4) + 'px';
+  $('deskcount').textContent = open.length ? open.length + ' waiting for you' : 'nothing waiting';
+  const turned = desk.turned_back || [], ignored = desk.ignored || 0;
+  $('turned').textContent = turned.length ? 'The door turned back, in the last day (no new identities): '
+    + turned.map((t) => t.host + (t.count > 1 ? ' (' + t.count + ' times)' : '')).join(', ') : '';
+  $('ignored').textContent = ignored ? ignored + (ignored === 1 ? ' request not filed by the Head was ignored.' : ' requests not filed by the Head were ignored.') : '';
+  $('desk').style.display = asks.length || vault.length || turned.length || ignored ? 'flex' : 'none';
+  $('deskinfo').textContent = deskOnline
+    ? 'What the Head asks you for, the things only you can give. What you provide goes straight into the vault the company reads; the Head hears about it when its next cycle starts.'
+    : ON_MAC ? 'The front desk (port 8772) is not answering; is the desk container running? (make office starts it)'
+      : 'Answers are given from the Mac, at http://127.0.0.1:8771.';
+  renderAsks(asks, waiting);
+  renderVault(vault);
+}
+function renderAsks(asks, waiting) {
+  const sig = JSON.stringify([deskOnline, asks.map((a) => [a.id, a.status, a.sha256, a.title, a.names]), waiting.map((a) => said(a.id))]);
+  if (sig === asksSig) return;
+  const shown = JSON.stringify([deskOnline, waiting.map((a) => [a.id, a.sha256, sentIds.has(a.id)])]);
+  const holder = $('asks');
+  if (holder.contains(document.activeElement) && shown === asksShown) {
+    // The owner is in a card: only the messages change under the cursor. asksSig stays old, so the
+    // rest is redrawn on the first poll after they leave it.
+    for (const m of holder.querySelectorAll('.msg')) m.textContent = said(m.dataset.id);
+    return;
+  }
+  asksSig = sig; asksShown = shown; holder.textContent = '';
+  for (const a of waiting) {
+    const card = el('div', 'ask'), sent = sentIds.has(a.id);
+    card.appendChild(el('div', 'pix title', a.title));
+    card.appendChild(el('div', 'small', a.id + (a.cycle != null ? ' · cycle ' + a.cycle : '') + (a.needs.length ? ' · needs ' + a.needs.join(', ') : '')));
+    const more = el('details'); more.open = deskOpen.has(a.id);
+    more.addEventListener('toggle', () => { if (more.open) deskOpen.add(a.id); else deskOpen.delete(a.id); });
+    more.appendChild(el('summary', null, 'Read the whole request'));
+    more.appendChild(el('pre', null, a.text));
+    card.appendChild(more);
+    // A sent answer has no fields and no buttons until the office shows it answered: no second answer meanwhile.
+    if (deskOnline && !sent) {
+      const values = deskValues[a.id] = deskValues[a.id] || {};
+      for (const name of a.needs) {
+        const box = el('div', 'need'), id = 'need-' + a.id + '-' + name;
+        const label = el('label', null, name); label.htmlFor = id;
+        const input = el('input'); input.id = id; input.type = 'password'; input.autocomplete = 'off'; input.spellcheck = false;
+        input.placeholder = 'paste it here'; input.value = values[name] || '';
+        input.addEventListener('input', () => { values[name] = input.value; });
+        box.appendChild(label); box.appendChild(input); card.appendChild(box);
+      }
+      const note = el('input'); note.placeholder = a.needs.length ? 'A note for the Head (optional)' : 'What you did, for the Head'; note.maxLength = 600; note.value = deskNotes[a.id] || '';
+      note.addEventListener('input', () => { deskNotes[a.id] = note.value; });
+      card.appendChild(note);
+      const row = el('div', 'row');
+      for (const [decision, label, color] of [['provide', 'Provide', 'var(--accent)'], ['no', 'No', 'var(--pink)']]) {
+        const b = el('button', 'b', label); b.type = 'button'; b.style.background = color;
+        b.addEventListener('click', () => decide(a, decision, row));
+        row.appendChild(b);
+      }
+      card.appendChild(row);
+    }
+    const msg = el('div', 'small msg', said(a.id)); msg.dataset.id = a.id;
+    card.appendChild(msg);
+    holder.appendChild(card);
+  }
+  // Answered requests fold into one line: they are history, and the cards above are what needs the owner.
+  const done = asks.filter((x) => x.status !== 'waiting');
+  if (done.length) holder.appendChild(fold('answered', 'Answered (' + done.length + ')', done.map((a) => {
+    const line = el('div', 'keyline');
+    const label = { provided: 'Provided', no: 'No', replaced: 'Replaced', edited: 'Edited' }[a.status] || a.status;
+    const pill = el('span', 'pill pix', label);
+    pill.style.background = a.status === 'provided' ? 'var(--accent)' : a.status === 'no' ? 'var(--pink)' : 'var(--faint)';
+    line.appendChild(pill);
+    line.appendChild(el('span', 'kname', a.id + ' · ' + a.title));
+    return line;
+  })));
+}
+// A <details> that stays as the owner left it across redraws (its key lives in deskOpen).
+function fold(key, title, lines) {
+  const box = el('details', 'fold'); box.open = deskOpen.has(key);
+  box.addEventListener('toggle', () => { if (box.open) deskOpen.add(key); else deskOpen.delete(key); });
+  box.appendChild(el('summary', 'small', title));
+  for (const line of lines) box.appendChild(line);
+  return box;
+}
+function renderVault(vault) {
+  const sig = JSON.stringify([deskOnline, vault, vault.map((v) => deskMsg['vault:' + v.name] || '')]);
+  if (sig === vaultSig) return;
+  vaultSig = sig;
+  const vbox = $('vault'); vbox.textContent = '';
+  if (!vault.length) return;
+  // One line per key, what it is for on hover: the names only, the values stay in desk/vault on this Mac.
+  vbox.appendChild(fold('vault', 'In the vault: ' + vault.length + (vault.length === 1 ? ' key' : ' keys') + ' (names only; the values stay on this Mac)', vault.map((v) => {
+    const line = el('div', 'keyline');
+    const name = el('span', 'kname', v.name); if (v.for) name.title = 'for ' + v.for;
+    line.appendChild(name);
+    if (deskOnline) {
+      const b = el('button', null, 'take back'); b.type = 'button';
+      b.addEventListener('click', () => takeBack(v.name, b));
+      line.appendChild(b);
+    }
+    if (deskMsg['vault:' + v.name]) line.appendChild(el('span', 'small', deskMsg['vault:' + v.name]));
+    return line;
+  })));
+}
+async function send(body, key) {
+  try {
+    const response = await fetch(DESK_URL + '/decide', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Desk': 'owner' }, body: JSON.stringify(body) });
+    const reply = await response.json();
+    deskMsg[key] = response.ok ? 'Sent. The Head hears it when the next cycle starts.' : 'Not sent: ' + (reply.error || response.status);
+    return response.ok;
+  } catch (error) {
+    deskMsg[key] = 'Not sent: the front desk is not answering.';
+    return false;
+  }
+}
+async function decide(a, decision, row) {
+  const values = deskValues[a.id] || {}, items = {};
+  // Only the names this request asks for go out, never a field kept from an older version of it.
+  if (decision === 'provide') for (const name of a.needs) if (values[name] && values[name].trim()) items[name] = values[name];
+  const buttons = [...row.querySelectorAll('button')];
+  for (const b of buttons) b.disabled = true;  // one answer at a time: no "No" while a "Provide" is on its way
+  const ok = await send({ id: a.id, decision, sha256: a.sha256, note: deskNotes[a.id] || '', items }, a.id);
+  if (ok) {
+    // A sent key is dropped from the page at once, and the card shows as sent until the office catches up.
+    sentIds.add(a.id); delete deskValues[a.id]; delete deskNotes[a.id];
+  } else {
+    for (const b of buttons) b.disabled = false;
+  }
+  render(last);
+}
+async function takeBack(name, button) {
+  if (!confirm('Take ' + name + ' back out of the vault? The company loses it at once. Revoke it at the service too.')) return;
+  button.disabled = true;
+  await send({ decision: 'withdraw', names: [name] }, 'vault:' + name);
+  render(last);
+}
+function renderWorld(s) {
+  const sales = s.sales || { count: 0, totals: {}, last: [] }, box = $('sales'); box.textContent = '';
+  const totals = Object.entries(sales.totals || {});
+  box.appendChild(el('div', 'money', totals.length ? totals.map(([c, v]) => v.toFixed(2) + ' ' + c).join(' · ') : '0.00'));
+  const refunds = sales.refunds ? ' and ' + sales.refunds + (sales.refunds === 1 ? ' refund' : ' refunds') : '';
+  box.appendChild(el('div', 'small', sales.count || sales.refunds ? sales.count + (sales.count === 1 ? ' sale' : ' sales') + refunds + ', as the company reports them in company/ledger.json. Your store is the record.' : 'No sales yet, as the company reports them in company/ledger.json.'));
+  if (sales.problem) { const p = el('div', 'small', 'Not counted: ' + sales.problem); p.style.color = 'var(--amber)'; box.appendChild(p); }
+  for (const sale of sales.last || []) box.appendChild(el('div', 'small', [sale.when, sale.what, sale.where, sale.amount.toFixed(2) + ' ' + sale.currency].filter(Boolean).join(' · ')));
+  const reachBox = $('reach'); reachBox.textContent = '';
+  for (const r of s.reach || []) {
+    const row = el('div', 'place');
+    row.appendChild(el('span', null, r.site)); row.appendChild(el('span', 'k', clock(r.last)));
+    row.appendChild(el('span', 'k', r.kind)); row.appendChild(el('span', 'k', r.count + (r.count === 1 ? ' visit' : ' visits')));
+    reachBox.appendChild(row);
+  }
+  if (!(s.reach || []).length) reachBox.appendChild(el('div', 'small', 'Nowhere yet.'));
+  const press = s.press;
+  $('presstxt').textContent = press ? Math.round(press.used / 1e6) + ' MB / ' + Math.round(press.cap / 1e9) + ' GB' : 'not measured yet';
+  $('pressbar').style.width = press ? Math.min(100, press.used / press.cap * 100) + '%' : '0';
+  $('pressbar').style.background = press && press.used > press.cap ? 'var(--pink)' : 'var(--violet)';
+}
+async function checkDesk() {
+  try { deskOnline = (await fetch(DESK_URL + '/health', { cache: 'no-store' })).ok; } catch (error) { deskOnline = false; }
+  if (last) render(last);
+  setTimeout(checkDesk, deskOnline ? 30000 : 5000);
+}
+$('frontdesk').addEventListener('click', () => { const d = $('desk'); d.scrollIntoView({ behavior: 'smooth', block: 'start' }); d.classList.add('flash'); setTimeout(() => d.classList.remove('flash'), 900); });
+checkDesk();
+
+async function poll() {
+  try {
+    const response = await fetch('/state.json', { cache: 'no-store' });
+    last = await response.json();
+    // A new version of this page loads itself, but never over a key or a note typed and not yet sent.
+    if (pageVersion && last.page_version && last.page_version !== pageVersion && !typed()) { location.reload(); return; }
+    pageVersion = pageVersion || last.page_version;
+    $('offline').style.display = 'none';
+    render(last);
+  } catch (error) {
+    $('offline').style.display = 'block';
+  }
+  setTimeout(poll, 1000);
+}
+poll();
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+# What the owner provides and answers: never published.
+desk/vault/
+desk/book/
+.env
+# Run state and the outside log stay on the machine that ran the company.
+log/
+STOP
+media/
+__pycache__/
+# Notes to the Head stay private; only the README is shared.
+notes/*
+!notes/README.md
+# Any other env file, keys and archives never leave the machine.
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+archive/
+*.p12
+*.pfx
+*.jks
+service-account*.json
+secrets/
+.secrets/
+.claude/
+node_modules/
+.venv/
+venv/
+.DS_Store
+*.jsonl
+*.mp4

@@ -1,0 +1,32 @@
+# Sites the door never opens, in open mode. The company reaches the rest of the public internet, but
+# its accounts and keys come only from the person watching, so it never needs to invent an identity:
+# no temporary inbox, no rented phone number, no captcha solver. A listed site covers its subdomains.
+
+# Temporary inboxes and phone numbers: how an agent would invent an identity
+mail.tm
+mail.gw
+guerrillamail.com
+10minutemail.com
+temp-mail.org
+tempmail.plus
+maildrop.cc
+mailinator.com
+getnada.com
+dropmail.me
+emailondeck.com
+1secmail.com
+yopmail.com
+receive-smss.com
+sms-activate.org
+sms-activate.io
+smspool.net
+textverified.com
+5sim.net
+quackr.io
+
+# Solving captchas
+2captcha.com
+anti-captcha.com
+capsolver.com
+capmonster.cloud
+deathbycaptcha.com

@@ -1,0 +1,116 @@
+name: autonomous-company
+
+services:
+  # The door: on both networks, and the only thing that is.
+  door:
+    build: ./door
+    networks: [box, egress]
+    environment:
+      # open (the default): the whole public internet, never the owner's network, except the sites in
+      #   door/shut.txt (temporary inboxes, rented phone numbers, captcha solvers).
+      # allowlist: only the hosts in door/allowlist.txt, which is the model, npm and PyPI.
+      DOOR_MODE: ${DOOR_MODE:-open}
+    volumes:
+      - ./door/allowlist.txt:/door/allowlist.txt:ro
+      # Temporary inboxes, rented phone numbers, captcha solvers: the company never invents an identity.
+      # The door rereads its lists, but a single-file mount stays pinned to the file that was there when
+      # the door started, and most editors save by writing a new file. So after editing either list,
+      # restart the door: docker compose restart door.
+      - ./door/shut.txt:/door/shut.txt:ro
+      - ./log:/log
+    restart: unless-stopped
+
+  # The box: one container per cycle, started by the heartbeat with `docker compose run`.
+  box:
+    build: ./box
+    networks: [box]
+    depends_on: [door]
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      HTTPS_PROXY: http://door:3128
+      HTTP_PROXY: http://door:3128
+      https_proxy: http://door:3128
+      http_proxy: http://door:3128
+      # The box's own servers (an agent testing its page on localhost) must not go through the door.
+      NO_PROXY: localhost,127.0.0.1,::1,office
+      no_proxy: localhost,127.0.0.1,::1,office
+    volumes:
+      - workspace:/workspace
+      # Read-only, so neither the orchestrator nor a worker can rewrite its own harness.
+      - ./box/bin:/opt/company/bin:ro
+      - ./walls.md:/opt/company/walls.md:ro
+      # Notes from the owner, each delivered once at a cycle's start and logged (cycle.py).
+      - ./notes:/opt/company/notes:ro
+      # The owner's answers at the front desk, and what they provided: readable, never writable, from inside.
+      # The checks point both at empty scratch folders (checks/boxrun.py), so they never touch the owner's.
+      - ${DESK_BOOK:-./desk/book}:/opt/company/desk:ro
+      - ${DESK_VAULT:-./desk/vault}:/opt/company/vault:ro
+      - ./office/look-format.md:/opt/company/look-format.md:ro
+    # A real init as PID 1, so a stop signal reaches cycle.py: a bare PID 1 ignores SIGTERM and SIGHUP.
+    init: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    # Room for up to sixteen agents working at once, plus the browsers and builds they run.
+    # Docker Desktop needs 12 GB or more (Settings > Resources > Memory) for this to be real.
+    pids_limit: 8192
+    mem_limit: 10g
+
+  # The window: view/ served read-only on the Mac only, from outside the box and off its network.
+  window:
+    image: python:3.12-slim
+    volumes:
+      - workspace:/w:ro
+      - ./window/serve.py:/serve.py:ro
+    command: ["python3", "-u", "/serve.py"]
+    ports: ["127.0.0.1:8770:8770"]
+    networks: [window]
+    restart: unless-stopped
+
+  # The live office: who is doing what, read from the outside log. Read-only, on the Mac only.
+  office:
+    image: python:3.12-slim
+    volumes:
+      - workspace:/w:ro
+      - ./log:/log:ro
+      - ./office:/office:ro
+      # The company's rules, shared with the box: which asks the head really filed (company.py).
+      - ./box/bin:/opt/company/bin:ro
+      # The book only: the vault never reaches the office, which the box can read.
+      - ${DESK_BOOK:-./desk/book}:/desk:ro
+    command: ["python3", "-u", "/office/server.py"]
+    ports: ["127.0.0.1:8771:8771"]
+    # Also on the box's network, so the company can see (and film) itself at http://office:8771.
+    # The server only ever answers GET / and GET /state.json; the Mac stays unreachable.
+    networks: [window, box]
+    restart: unless-stopped
+
+  # The front desk: where the owner provides what the company asks for. On the window network only,
+  # so nothing in the box can reach it; it is the only writer of desk/book and desk/vault.
+  desk:
+    image: python:3.12-slim
+    volumes:
+      - workspace:/workspace:ro
+      - ./box/bin:/opt/company/bin:ro
+      - ./desk/server.py:/desk/server.py:ro
+      # The outside log, which agents cannot write: an ask counts only if the head's own `ask` filed it.
+      - ./log:/log:ro
+      - ${DESK_BOOK:-./desk/book}:/opt/company/desk
+      - ${DESK_VAULT:-./desk/vault}:/opt/company/vault
+    command: ["python3", "-u", "/desk/server.py"]
+    ports: ["127.0.0.1:8772:8772"]
+    networks: [window]
+    restart: unless-stopped
+
+networks:
+  window: {}
+  # internal = no default route. A program that ignores the proxy fails closed instead of leaking.
+  box:
+    internal: true
+  egress: {}
+
+volumes:
+  # The checks point this at a scratch volume, so they never touch the company's workspace.
+  workspace:
+    name: ${WORKSPACE_VOLUME:-autonomous-company_workspace}

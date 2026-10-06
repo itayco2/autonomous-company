@@ -1,0 +1,7 @@
+# Every host the box may reach, and only on port 443. One exact name per line, no wildcards.
+# Each line is a capability handed to the agent, so the list stays as short as the checks allow.
+
+api.anthropic.com        # the model, and the model's own server-side web search
+registry.npmjs.org       # npm install
+pypi.org                 # pip install: the index
+files.pythonhosted.org   # pip install: the files
