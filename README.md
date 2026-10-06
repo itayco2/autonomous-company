@@ -117,6 +117,8 @@ untrusted: a page a worker reads can try to steer it. Give it only keys you are 
 scoped as narrowly as the service allows, and revoke them when you stop. That includes your Claude
 token: the agents run with it, so they can read it.
 
+Found a way through the walls? See `SECURITY.md` for what counts and how to report it.
+
 ## Letting it act in the world
 
 The company has the whole public internet from the start, so it can research, read and test
