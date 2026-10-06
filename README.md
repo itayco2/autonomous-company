@@ -1,5 +1,7 @@
 # autonomous-company
 
+[![tests](https://github.com/itayco2/autonomous-company/actions/workflows/tests.yml/badge.svg)](https://github.com/itayco2/autonomous-company/actions/workflows/tests.yml)
+
 One AI runs a company by itself.
 
 You give it a goal and a sealed computer. It decides what the company is called and what it makes,
