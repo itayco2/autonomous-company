@@ -10,6 +10,7 @@ import json
 import os
 import pathlib
 import re
+import shutil
 import stat
 import subprocess
 import sys
@@ -162,11 +163,44 @@ class Makefile(unittest.TestCase):
             self.assertIn("$(CHECK_DESK)", command, script)
 
 
+@unittest.skipUnless(shutil.which("make"), "make is not installed")
+class MakefileDoorMode(unittest.TestCase):
+    """The Makefile's DOOR_MODE line, evaluated by make in a scratch folder with its own .env."""
+
+    def mode(self, env_file=None, door_mode=None):
+        line = next(l for l in (ROOT / "Makefile").read_text().splitlines() if l.startswith("DOOR_MODE ?="))
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        tree = pathlib.Path(folder.name)
+        (tree / "Makefile").write_text(line + "\nshow:\n\t@echo $(DOOR_MODE)\n")
+        if env_file is not None:
+            (tree / ".env").write_text(env_file)
+        env = {k: v for k, v in os.environ.items() if k not in ("DOOR_MODE", "MAKEFLAGS")}
+        if door_mode is not None:
+            env["DOOR_MODE"] = door_mode
+        done = subprocess.run(["make", "-s", "show"], cwd=tree, env=env, capture_output=True, text=True, timeout=30)
+        return done.stdout.strip()
+
+    def test_open_by_default_never_the_compose_text(self):
+        self.assertEqual(self.mode(), "open")
+
+    def test_env_sets_it_with_quotes_and_comments_stripped(self):
+        self.assertEqual(self.mode("DOOR_MODE=allowlist\n"), "allowlist")
+        self.assertEqual(self.mode("DOOR_MODE='allowlist' # tight\n"), "allowlist")
+
+    def test_the_shell_wins_over_env(self):
+        self.assertEqual(self.mode("DOOR_MODE=open\n", door_mode="allowlist"), "allowlist")
+
+    def test_the_walls_check_is_told_that_mode(self):
+        walls = next(c for c in recipe("checks") if "checks/walls.py" in c)
+        self.assertIn('python3 - "$(DOOR_MODE)" < checks/walls.py', walls)
+
+
 class WithToken(unittest.TestCase):
     """with-token.sh run for real, with docker, curl, python3 and sleep replaced by stand-ins that
     only write down how they were called. The real docker is not even on the PATH."""
 
-    def run_script(self, desk_answers=True):
+    def run_script(self, desk_answers=True, env_file=None, door_mode=None):
         folder = tempfile.TemporaryDirectory()
         self.addCleanup(folder.cleanup)
         tree = pathlib.Path(folder.name)
@@ -186,9 +220,30 @@ class WithToken(unittest.TestCase):
             (stubs / name).write_text("#!/bin/sh\n" + body)
             (stubs / name).chmod(0o755)
         env = {"PATH": f"{stubs}:/usr/bin:/bin", "HOME": str(tree)}
+        if env_file is not None:
+            (tree / ".env").write_text(env_file)
+        if door_mode is not None:
+            env["DOOR_MODE"] = door_mode
         done = subprocess.run(["/bin/sh", str(tree / "checks" / "with-token.sh")], cwd=tree, env=env,
                               capture_output=True, text=True, timeout=60)
         return tree, done.stdout, calls.read_text().splitlines()
+
+    def walls_mode(self, **kwargs):
+        """The mode the walls check was told, read off the stand-in docker's record of the call."""
+        _, _, calls = self.run_script(**kwargs)
+        walls = next(c for c in calls if c.startswith("docker compose run"))
+        return re.search(r"python3 - (\S+)", walls).group(1)
+
+    def test_the_walls_hear_open_when_nothing_sets_the_door_mode(self):
+        self.assertEqual(self.walls_mode(), "open")
+
+    def test_the_walls_hear_the_mode_written_in_env_quotes_and_comments_aside(self):
+        self.assertEqual(self.walls_mode(env_file="DOOR_MODE=allowlist\n"), "allowlist")
+        self.assertEqual(self.walls_mode(env_file='DOOR_MODE="allowlist"  # tight\n'), "allowlist")
+        self.assertEqual(self.walls_mode(env_file="# DOOR_MODE=allowlist\n"), "open")
+
+    def test_a_door_mode_in_the_shell_wins_over_env_as_it_does_for_compose(self):
+        self.assertEqual(self.walls_mode(env_file="DOOR_MODE=open\n", door_mode="allowlist"), "allowlist")
 
     def test_office_and_desk_start_first_on_the_owners_book(self):
         _, out, calls = self.run_script()
