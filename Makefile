@@ -3,10 +3,10 @@
 # Targets are commands, not files: without this, `make checks` does nothing, because a checks/ folder exists.
 .PHONY: help start stop status view office test checks checks-token capture timelapse
 
+# The door's mode as compose resolves it: DOOR_MODE from the shell, then from .env, else open.
+DOOR_MODE ?= $(or $(shell sed -n 's/^DOOR_MODE=[\"'"'"']*\([a-z]*\).*/\1/p' .env 2>/dev/null | tail -1),open)
 # The checks get an empty book and vault of their own (checks/boxrun.py does the same for the Python
 # checks): a broken read-only mount can then never write into the owner's, and no check sees the owner's values.
-# The door's mode as compose resolves it: DOOR_MODE in .env, else open.
-DOOR_MODE ?= $(or $(shell sed -n 's/^DOOR_MODE=[\"'"'"']*\([a-z]*\).*/\1/p' .env 2>/dev/null | tail -1),open)
 CHECK_DESK := DESK_BOOK=./log/checks/desk-book DESK_VAULT=./log/checks/desk-vault
 # The walls' desk probe passes when the box cannot reach the desk, which means something only while the
 # desk is up. So first it must answer on the Mac; a container just started takes a moment to listen.
@@ -18,8 +18,18 @@ help: ## list the targets
 # The company's share of the weekly allowance, in percentage points (configure as needed).
 SHARE ?= 20
 
+# macOS keeps the machine awake while the company runs and opens pages with `open`. Linux has no
+# caffeinate, and opens pages with xdg-open.
+ifeq ($(shell uname -s),Darwin)
+KEEP_AWAKE := caffeinate -is
+OPEN := open
+else
+KEEP_AWAKE :=
+OPEN := xdg-open
+endif
+
 start: ## run the company, cycle after cycle, until `make stop`; keeps the machine awake meanwhile (macOS caffeinate)
-	caffeinate -is python3 heartbeat.py --share $(SHARE)
+	$(KEEP_AWAKE) python3 heartbeat.py --share $(SHARE)
 
 capture: ## record the office and the company's view into media/ while it runs (only when wanted)
 	python3 capture.py
@@ -41,10 +51,10 @@ status: ## running or not, the last cycles, and the company's share of this week
 	@python3 heartbeat.py --status
 
 view: ## open what the company shows, http://127.0.0.1:8770
-	@open http://127.0.0.1:8770
+	@$(OPEN) http://127.0.0.1:8770
 
 office: ## open the live office: who is doing what, and the front desk for your answers, http://127.0.0.1:8771
-	@docker compose up -d --no-deps office desk >/dev/null 2>&1; open http://127.0.0.1:8771
+	@docker compose up -d --no-deps office desk >/dev/null 2>&1; $(OPEN) http://127.0.0.1:8771
 
 test: ## the fast tier: pure functions, standard library only, no Docker and no model
 	python3 -m unittest discover -s tests

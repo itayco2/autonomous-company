@@ -164,6 +164,35 @@ class Makefile(unittest.TestCase):
 
 
 @unittest.skipUnless(shutil.which("make"), "make is not installed")
+class MakefilePlatform(unittest.TestCase):
+    """What `make -n` would run, with uname replaced by a stand-in that names the system."""
+
+    def plan(self, system, *targets):
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        uname = pathlib.Path(folder.name) / "uname"
+        uname.write_text(f"#!/bin/sh\necho {system}\n")
+        uname.chmod(0o755)
+        env = {k: v for k, v in os.environ.items() if k != "MAKEFLAGS"}
+        env["PATH"] = f"{folder.name}:{env.get('PATH', '/usr/bin:/bin')}"
+        done = subprocess.run(["make", "-n", "-C", str(ROOT), *targets], env=env, capture_output=True,
+                              text=True, timeout=30)
+        return done.stdout
+
+    def test_macos_keeps_the_machine_awake_and_opens_with_open(self):
+        out = self.plan("Darwin", "start", "view")
+        self.assertIn("caffeinate -is python3 heartbeat.py --share 20", out)
+        self.assertIn("open http://127.0.0.1:8770", out)
+
+    def test_linux_runs_the_heartbeat_directly_and_opens_with_xdg_open(self):
+        out = self.plan("Linux", "start", "view", "office")
+        self.assertNotIn("caffeinate", out)
+        self.assertIn("python3 heartbeat.py --share 20", out)
+        self.assertIn("xdg-open http://127.0.0.1:8770", out)
+        self.assertIn("xdg-open http://127.0.0.1:8771", out)
+
+
+@unittest.skipUnless(shutil.which("make"), "make is not installed")
 class MakefileDoorMode(unittest.TestCase):
     """The Makefile's DOOR_MODE line, evaluated by make in a scratch folder with its own .env."""
 

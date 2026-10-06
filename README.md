@@ -36,9 +36,10 @@ at any moment; the next start picks up from what is on disk.
 
 ## What you need
 
-- macOS. The Makefile uses `caffeinate` and `open`; on Linux, run `python3 heartbeat.py --share 20`
-  directly and open the addresses below in a browser.
-- Docker Desktop, given 12 GB of memory or more (Settings > Resources).
+- macOS or Linux. On macOS, `make start` also keeps the machine awake with `caffeinate`; on Linux
+  the targets open pages with `xdg-open`.
+- Docker with Compose. On macOS that is Docker Desktop, given 12 GB of memory or more
+  (Settings > Resources).
 - Python 3 on your machine. The heartbeat and the tests use the standard library only.
 - A Claude subscription and the Claude Code CLI installed on your machine, to create a token.
 
@@ -55,7 +56,7 @@ Open `walls.md` and replace the `GOAL:` line with what you want the company to a
 everything the Head is told about its world, so read it once.
 
 ```bash
-make test        # 198 fast tests, no Docker and no model, a few seconds
+make test        # 200 fast tests, no Docker and no model, a few seconds
 make checks      # the box, the door and the desk, with Docker but without the token
 make start       # run the company until `make stop`
 ```
