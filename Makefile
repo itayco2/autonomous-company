@@ -1,4 +1,4 @@
-# autonomous-company runbook. `make` on its own lists the targets.
+# Autonomous-Company runbook. `make` on its own lists the targets.
 .DEFAULT_GOAL := help
 # Targets are commands, not files: without this, `make checks` does nothing, because a checks/ folder exists.
 .PHONY: help start stop status view office test checks checks-token capture timelapse

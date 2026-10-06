@@ -1,6 +1,6 @@
-# autonomous-company
+# Autonomous-Company
 
-[![tests](https://github.com/itayco2/autonomous-company/actions/workflows/tests.yml/badge.svg)](https://github.com/itayco2/autonomous-company/actions/workflows/tests.yml)
+[![tests](https://github.com/itayco2/Autonomous-Company/actions/workflows/tests.yml/badge.svg)](https://github.com/itayco2/Autonomous-Company/actions/workflows/tests.yml)
 
 One AI runs a company by itself.
 
@@ -46,8 +46,8 @@ at any moment; the next start picks up from what is on disk.
 ## Start
 
 ```bash
-git clone https://github.com/itayco2/autonomous-company
-cd autonomous-company
+git clone https://github.com/itayco2/Autonomous-Company
+cd Autonomous-Company
 cp .env.example .env
 claude setup-token          # paste the token into .env as CLAUDE_CODE_OAUTH_TOKEN, on one line
 ```
