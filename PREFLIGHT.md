@@ -4,8 +4,8 @@ Every defect found before and during the first run, with the number that exposed
 caught by the checks in `checks/`, the rest by two independent code reviews whose findings were each
 put to a second reviewer told to refute them. Rows 1 to 24 were found on 2026-09-30. From row 25 on
 they come from the review of 2026-10-01, after the door was opened to the public internet, with the same
-refutation step: 41 findings confirmed, 25 rejected, grouped here by what they broke. Rows 45 and 46
-come from the security review before the public release, on 2026-10-06.
+refutation step: 41 findings confirmed, 25 rejected, grouped here by what they broke. Rows 45 to 47
+come from the security review and the first test of a fresh clone, on 2026-10-06.
 
 | # | What was wrong | The number that showed it | Fix | The number after |
 |---|---|---|---|---|
@@ -55,3 +55,4 @@ come from the security review before the public release, on 2026-10-06.
 | 44 | The office counted every report that was not "Queued" or "Started" as done, so after the Head's cycle-3 rule (agents write "Partial: in progress - ..." within 5 minutes and keep updating it) six working tasks showed as finished | The board read "0 working on, 7 done" five minutes into cycle 3, while the reports said "in progress" | A first line that starts "in progress" (with or without "Partial:") counts as working in its own cycle and as cut off after it | 1 fast test; the board reads 6 working, 3 queued, 1 done |
 | 45 | The checks told the walls check the door's mode by reading it out of compose.yaml, which yields the text `${DOOR_MODE:-open}`, not a mode, so every run was judged as an allowlist door | The grep and awk pair the Makefile and with-token.sh used printed `${DOOR_MODE:-open}` when run against compose.yaml | Read the mode the way compose does: the shell first, then `.env` with quotes and comments stripped, then `open` | 7 fast tests; `make -n checks` passes `open` |
 | 46 | The README said to run `docker compose restart door` after changing `DOOR_MODE`, but a restart keeps the environment the container was created with, so the door would stay in its old mode | Found by review, not by a run: compose applies a changed environment only when it recreates a container | Tell the owner to run `docker compose up -d door`, which recreates the door with the new value | README and `.env.example` both say `up -d door` |
+| 47 | The checks started this project's office and desk with their errors thrown away. When another compose project already held ports 8771 and 8772, ours could not start, and the desk check would have gone on to probe the other project's desk | On 2026-10-06, `docker ps` during `make checks` on a fresh clone showed the clone's door running and no office or desk of its own, while another project's office and desk held the ports. That the probe then reaches the other desk is read from the code: the walls run was cut short that day | A failed start now fails the check at once, naming the ports, before any probe; `make office` says so too | 2 fast tests |

@@ -54,7 +54,7 @@ view: ## open what the company shows, http://127.0.0.1:8770
 	@$(OPEN) http://127.0.0.1:8770
 
 office: ## open the live office: who is doing what, and the front desk for your answers, http://127.0.0.1:8771
-	@docker compose up -d --no-deps office desk >/dev/null 2>&1; $(OPEN) http://127.0.0.1:8771
+	@docker compose up -d --no-deps office desk >/dev/null 2>&1 || echo "the office or the desk did not start: is another project using ports 8771 and 8772?"; $(OPEN) http://127.0.0.1:8771
 
 test: ## the fast tier: pure functions, standard library only, no Docker and no model
 	python3 -m unittest discover -s tests
@@ -63,8 +63,9 @@ test: ## the fast tier: pure functions, standard library only, no Docker and no 
 # first. They are the owner's real office and desk and stay up afterwards, so they never get CHECK_DESK.
 checks: ## the checks that need no token: the walls, the model rules, pause and kill
 	@rm -rf log/checks/desk-book log/checks/desk-vault && mkdir -p log/checks/desk-book && mkdir -p -m 700 log/checks/desk-vault
-	@docker compose up -d --no-deps office desk >/dev/null 2>&1; \
-	if ( $(DESK_ANSWERS) ); then \
+	@if ! docker compose up -d --no-deps office desk >/dev/null 2>&1; then \
+	  echo "RESULT FAIL: this project's office and desk did not start (is another project using ports 8771 and 8772?)"; \
+	elif ( $(DESK_ANSWERS) ); then \
 	  $(CHECK_DESK) WORKSPACE_VOLUME=autonomous-company_checks docker compose run --rm -T -e CLAUDE_CODE_OAUTH_TOKEN= box python3 - "$(DOOR_MODE)" < checks/walls.py | tail -1; \
 	else echo "RESULT FAIL: the front desk does not answer on the Mac, so the probe that the box cannot reach it would prove nothing"; fi
 	$(CHECK_DESK) python3 checks/roles.py | tail -1

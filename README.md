@@ -56,7 +56,7 @@ Open `walls.md` and replace the `GOAL:` line with what you want the company to a
 everything the Head is told about its world, so read it once.
 
 ```bash
-make test        # 200 fast tests, no Docker and no model, a few seconds
+make test        # 202 fast tests, no Docker and no model, a few seconds
 make checks      # the box, the door and the desk, with Docker but without the token
 make start       # run the company until `make stop`
 ```

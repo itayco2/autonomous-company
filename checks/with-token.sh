@@ -17,13 +17,19 @@ mkdir -p log/checks/desk-book && mkdir -p -m 700 log/checks/desk-vault
   # `run box` starts only the door, but the walls probe the office and the desk as well. They are the
   # owner's real ones and stay up afterwards, so they start on the owner's own book. The desk probe passes when
   # the box cannot reach the desk, which means something only while the desk answers on the Mac.
-  docker compose up -d --no-deps office desk >/dev/null 2>&1
-  desk_up=no
-  for i in 1 2 3 4 5 6 7 8 9 10; do
-    curl -sf -o /dev/null -H 'Origin: http://127.0.0.1:8771' http://127.0.0.1:8772/health && { desk_up=yes; break; }
-    sleep 1
-  done
-  if [ "$desk_up" = no ]; then
+  # If another project already holds 8771 and 8772, ours cannot start, and the desk that answers is theirs.
+  started=yes; desk_up=no
+  docker compose up -d --no-deps office desk >/dev/null 2>&1 || started=no
+  if [ "$started" = yes ]; then
+    for i in 1 2 3 4 5 6 7 8 9 10; do
+      curl -sf -o /dev/null -H 'Origin: http://127.0.0.1:8771' http://127.0.0.1:8772/health && { desk_up=yes; break; }
+      sleep 1
+    done
+  fi
+  if [ "$started" = no ]; then
+    echo "CHECK 2 FAIL: this project's office and desk did not start (is another project using ports 8771 and 8772?), so the desk that answers would not be ours"
+    failed=1
+  elif [ "$desk_up" = no ]; then
     echo "CHECK 2 FAIL: the front desk does not answer on the Mac, so the probe that the box cannot reach it would prove nothing"
     failed=1
   elif DESK_BOOK=./log/checks/desk-book DESK_VAULT=./log/checks/desk-vault WORKSPACE_VOLUME=autonomous-company_checks \

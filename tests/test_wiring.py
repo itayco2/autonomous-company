@@ -149,6 +149,11 @@ class Makefile(unittest.TestCase):
         self.assertNotIn("DESK_", command[:up])
         self.assertNotIn("CHECK_DESK", command[:command.index("if (")])
 
+    def test_the_walls_never_probe_a_desk_this_project_did_not_start(self):
+        command = next(c for c in self.checks if "checks/walls.py" in c)
+        self.assertTrue(command.startswith("@if ! docker compose up -d --no-deps office desk"), command[:60])
+        self.assertLess(command.index("did not start"), command.index("$(DESK_ANSWERS)"))
+
     def test_the_walls_run_only_after_the_desk_answers_on_the_mac(self):
         command = next(c for c in self.checks if "checks/walls.py" in c)
         self.assertLess(command.index("$(DESK_ANSWERS)"), command.index("docker compose run"))
@@ -229,7 +234,7 @@ class WithToken(unittest.TestCase):
     """with-token.sh run for real, with docker, curl, python3 and sleep replaced by stand-ins that
     only write down how they were called. The real docker is not even on the PATH."""
 
-    def run_script(self, desk_answers=True, env_file=None, door_mode=None):
+    def run_script(self, desk_answers=True, env_file=None, door_mode=None, up_fails=False):
         folder = tempfile.TemporaryDirectory()
         self.addCleanup(folder.cleanup)
         tree = pathlib.Path(folder.name)
@@ -242,7 +247,8 @@ class WithToken(unittest.TestCase):
         stubs, calls = tree / "stubs", tree / "calls.txt"
         stubs.mkdir()
         record = f'echo "$(basename "$0") $* | DESK_BOOK=${{DESK_BOOK-unset}} DESK_VAULT=${{DESK_VAULT-unset}}" >> "{calls}"\n'
-        stub = {"docker": record + 'case "$*" in *"python3 -"*) echo "RESULT PASS";; esac\n',
+        up = 'case "$*" in "compose up"*) exit 1;; esac\n' if up_fails else ""
+        stub = {"docker": record + up + 'case "$*" in *"python3 -"*) echo "RESULT PASS";; esac\n',
                 "curl": record + ("exit 0\n" if desk_answers else "exit 7\n"),
                 "python3": record, "sleep": record}
         for name, body in stub.items():
@@ -288,6 +294,12 @@ class WithToken(unittest.TestCase):
         self.assertIn("DESK_BOOK=./log/checks/desk-book DESK_VAULT=./log/checks/desk-vault", walls)
         halt = next(c for c in calls if "checks/halt.py" in c)
         self.assertIn("DESK_BOOK=./log/checks/desk-book DESK_VAULT=./log/checks/desk-vault", halt)
+
+    def test_an_office_and_desk_that_cannot_start_fail_the_walls_before_any_probe(self):
+        _, out, calls = self.run_script(up_fails=True)
+        self.assertIn("CHECK 2 FAIL: this project's office and desk did not start", out)
+        self.assertFalse([c for c in calls if c.startswith("curl ")])
+        self.assertFalse([c for c in calls if c.startswith("docker compose run")])
 
     def test_a_desk_that_does_not_answer_fails_the_walls_without_running_them(self):
         _, out, calls = self.run_script(desk_answers=False)
