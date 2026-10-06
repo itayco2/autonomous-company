@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: A security report
+    url: https://github.com/itayco2/autonomous-company/blob/main/SECURITY.md
+    about: Please read this first, and keep the details out of public issues.
